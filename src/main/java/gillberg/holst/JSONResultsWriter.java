@@ -2,7 +2,7 @@ package gillberg.holst;
 
 import gillberg.holst.enums.Feature;
 import gillberg.holst.enums.Paradigm;
-import gillberg.holst.enums.ValueNotSetException;
+import gillberg.holst.exceptions.ValueNotSetException;
 import gillberg.holst.exceptions.FeatureNotSetException;
 import gillberg.holst.exceptions.FilenameNotSetException;
 import org.json.simple.JSONArray;

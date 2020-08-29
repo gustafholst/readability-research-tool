@@ -1,4 +1,4 @@
-package gillberg.holst.enums;
+package gillberg.holst.exceptions;
 
 public class ValueNotSetException extends Throwable {
 

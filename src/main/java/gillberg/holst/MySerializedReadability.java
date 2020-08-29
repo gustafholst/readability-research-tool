@@ -46,7 +46,7 @@ public class MySerializedReadability extends SerializedReadability {
 
 
         //File file = new File(args[0]);
-        File[] source_folders = JavaFileParser.getSourceCodeDirectories();
+        File[] source_folders = ReadabilityFeaturesCalculator.getSourceCodeDirectories();
         File rx_folder = Arrays.stream(source_folders).filter(dir -> dir.getName().endsWith("rx")).findFirst().get();
 
 

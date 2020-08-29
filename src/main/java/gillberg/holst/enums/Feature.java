@@ -17,4 +17,5 @@ public enum Feature {
 	public String toString() {
 		return name();
 	}
+
 }

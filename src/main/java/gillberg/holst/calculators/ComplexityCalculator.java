@@ -1,6 +1,14 @@
-package gillberg.holst;
+package gillberg.holst.calculators;
 
+import gillberg.holst.Calculator;
+import gillberg.holst.Method;
+import gillberg.holst.enums.Feature;
 import gillberg.holst.enums.Paradigm;
+import gillberg.holst.exceptions.FeatureAlreadySetException;
+import gillberg.holst.exceptions.MethodNotRefactoredException;
+import gillberg.holst.exceptions.UnknownParadigmException;
+//import net.sourceforge.pmd.*;
+import gillberg.holst.features.CyclomaticComplexity;
 import net.sourceforge.pmd.*;
 import net.sourceforge.pmd.renderers.JsonRenderer;
 import net.sourceforge.pmd.renderers.Renderer;
@@ -9,26 +17,22 @@ import net.sourceforge.pmd.util.ClasspathClassLoader;
 import net.sourceforge.pmd.util.datasource.DataSource;
 import net.sourceforge.pmd.util.datasource.FileDataSource;
 import org.apache.commons.io.FileUtils;
+import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
+import org.json.simple.parser.ParseException;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.StringWriter;
-import java.io.Writer;
+import java.io.*;
 import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 
-public class ComplexityCalculator {
+public class ComplexityCalculator extends AbstractCalculator implements Calculator {
 
-    private final int numThreads = 0;
-    private String directory;
     private PMDConfiguration configuration;
 
-    public ComplexityCalculator(String dir) {
-        this.directory = dir;
+    public ComplexityCalculator(String dir, List<Method> methods) {
+        super(dir, methods);
 
         PMDConfiguration configuration = new PMDConfiguration();
         configuration.setMinimumPriority(RulePriority.LOW);
@@ -38,11 +42,11 @@ public class ComplexityCalculator {
         } catch (IOException e) {
             System.out.println("Could not instantiate ComplexityCalculator. Reason: " + e.getMessage());
         }
+        int numThreads = 0;
         configuration.setThreads(numThreads);  // in order to not mess upp storing the results
     }
 
-    public String calculate() throws IOException {
-
+    public void calculate() throws IOException {
 
         int numThread = configuration.getThreads();
 
@@ -79,7 +83,52 @@ public class ComplexityCalculator {
         System.out.println("Calculated complexities from directory " + directory);
         System.out.println("Using " + numThread + " threads");
 
-        return rendererOutput.toString();
+        parseJSONStringAndStoreResults(rendererOutput.toString());
+    }
+
+    public void parseJSONStringAndStoreResults(String jsonString) {
+
+        JSONParser parser = new JSONParser();
+
+        try {
+            JSONObject rootObject = (JSONObject)parser.parse(jsonString);
+            JSONArray filesArray = (JSONArray) rootObject.get("files");
+
+            String currentClass = null;  //keep track of class in case of nested classes
+            for (Object file : filesArray) {
+                JSONObject fileObject = (JSONObject)file;
+                JSONArray violationsArray = (JSONArray) fileObject.get("violations");
+
+                for (Object o : violationsArray) {
+                    String description = ((JSONObject)o).get("description").toString();
+                    String[] tokens = description.split("'");
+                    String type = tokens[0].split(" ")[1];
+
+                    if (type.equals("class")) {
+                        currentClass = tokens[1];
+                    }
+                    else if (type.equals("method") ) { // only store methods
+                        Method method = getMethod(currentClass, tokens[1]);
+
+                        String[] t = tokens[2].split("[ .]");
+
+                        Number cycValue = Integer.parseInt(t[t.length - 1]);
+
+                        //method.setValueForFeature(Feature.cyclomatic_complexity, getParadigm(), cyc);
+
+                        method.addCalculatedFeature(new CyclomaticComplexity(), cycValue, getParadigm());
+                    }
+                }
+            }
+        } catch (FeatureAlreadySetException e) {
+            e.printStackTrace();
+        } catch (UnknownParadigmException e) {
+            e.printStackTrace();
+        } catch (MethodNotRefactoredException e) {
+            System.out.println(e.getMessage());
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
     }
 
     private static ThreadSafeReportListener createReportListener() {
