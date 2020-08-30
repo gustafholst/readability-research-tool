@@ -34,28 +34,28 @@ public class JSONResultsWriter implements ResultsWriter {
         jo.put("className", m.className);
         jo.put("signature", m.signature);
 
-        try {
-            Number[] buse = m.getBuseReadability();
-            Number[] scalabrino = m.getScalabrinoReadability();
-            Number[] cyc = m.getCyclomaticComplexity();
-
-            addValues(jo, "buse_readability", buse);
-            addValues(jo, "scalabrino_readability", scalabrino);
-            addValues(jo, "cyclomatic_complexity", cyc);
-        } catch (ValueNotSetException vnse) {
-            System.out.println(vnse.getMessage() + " for method " + m);
-        }
-
-        // TODO remove FeatureNotSetException
-        for (Feature feature : Feature.values()) {
-            try {
-                Number[] values = m.getValuesForFeature(feature);
-                addValues(jo, feature.toString(), values);
-            } catch (FeatureNotSetException | ValueNotSetException e) {
-                System.out.println("Could not add a value for feature " + feature.toString());
-                // TODO add some character to json file for this feature (f.ex. '-' or '?')
-            }
-        }
+//        try {
+//            Number[] buse = m.getBuseReadability();
+//            Number[] scalabrino = m.getScalabrinoReadability();
+//            Number[] cyc = m.getCyclomaticComplexity();
+//
+//            addValues(jo, "buse_readability", buse);
+//            addValues(jo, "scalabrino_readability", scalabrino);
+//            addValues(jo, "cyclomatic_complexity", cyc);
+//        } catch (ValueNotSetException vnse) {
+//            System.out.println(vnse.getMessage() + " for method " + m);
+//        }
+//
+//        // TODO remove FeatureNotSetException
+//        for (Feature feature : Feature.values()) {
+//            try {
+//                Number[] values = m.getValuesForFeature(feature);
+//                addValues(jo, feature.toString(), values);
+//            } catch (FeatureNotSetException | ValueNotSetException e) {
+//                System.out.println("Could not add a value for feature " + feature.toString());
+//                // TODO add some character to json file for this feature (f.ex. '-' or '?')
+//            }
+//        }
 
         array.add(jo);
     }

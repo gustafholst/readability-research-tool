@@ -36,12 +36,17 @@ public abstract class AbstractCalculator {
         parser.getParserConfiguration().setDoNotAssignCommentsPrecedingEmptyLines(false);
 
         InputStream in = null;
-        CompilationUnit cu = null;
+
         try
         {
             in = new FileInputStream(file);
             ParseResult<CompilationUnit> result = parser.parse(in);
-            cu = result.getResult().get();
+            Optional<CompilationUnit> cu = result.getResult();
+
+            if (cu.isPresent()) {
+                return cu.get();
+            }
+
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         } finally
@@ -49,7 +54,8 @@ public abstract class AbstractCalculator {
             assert in != null;
             in.close();
         }
-        return cu;
+
+        throw new IOException("No parse result");
     }
 
     protected static File[] getJavaFilesFromDir(String pathName) {
@@ -73,7 +79,8 @@ public abstract class AbstractCalculator {
 
     protected Method getMethod(String className, String signature) throws MethodNotRefactoredException {
         Method temp = new Method(className, signature);
-        Optional<Method> foundMethod = methodList.stream().filter(m -> m.equals(temp)).findFirst();
+
+        Optional<Method> foundMethod = this.methodList.stream().filter(m -> m.equals(temp)).findFirst();
         if (foundMethod.isPresent()) {
             return foundMethod.get();
         }

@@ -17,6 +17,7 @@ import net.sourceforge.pmd.util.ClasspathClassLoader;
 import net.sourceforge.pmd.util.datasource.DataSource;
 import net.sourceforge.pmd.util.datasource.FileDataSource;
 import org.apache.commons.io.FileUtils;
+import org.eclipse.core.internal.utils.FileUtil;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
@@ -34,13 +35,13 @@ public class ComplexityCalculator extends AbstractCalculator implements Calculat
     public ComplexityCalculator(String dir, List<Method> methods) {
         super(dir, methods);
 
-        PMDConfiguration configuration = new PMDConfiguration();
-        configuration.setMinimumPriority(RulePriority.LOW);
-        configuration.setRuleSets("D:\\OpenSourceProjects\\ReadabilityFeaturesCalculator\\src\\main\\resources\\cyc_ruleset.xml");
+        this.configuration = new PMDConfiguration();
+        this.configuration.setMinimumPriority(RulePriority.LOW);
+        this.configuration.setRuleSets("D:\\OpenSourceProjects\\ReadabilityFeaturesCalculator\\src\\main\\resources\\cyc_ruleset.xml");
         try {
             configuration.prependClasspath("/home/workspace/target/classes");
         } catch (IOException e) {
-            System.out.println("Could not instantiate ComplexityCalculator. Reason: " + e.getMessage());
+            System.out.println("Could not prepend classpath. Reason: " + e.getMessage());
         }
         int numThreads = 0;
         configuration.setThreads(numThreads);  // in order to not mess upp storing the results
@@ -51,8 +52,7 @@ public class ComplexityCalculator extends AbstractCalculator implements Calculat
         int numThread = configuration.getThreads();
 
         RuleSetFactory ruleSetFactory = RulesetsFactoryUtils.createFactory(configuration);
-
-        List<DataSource> files = getDataSourcesFromDirectory(directory);
+        List<DataSource> files = getDataSourcesFromDirectory(this.directory);
 
         Writer rendererOutput = new StringWriter();
         Renderer renderer = createRenderer(rendererOutput);
@@ -60,7 +60,7 @@ public class ComplexityCalculator extends AbstractCalculator implements Calculat
         renderer.start();
 
         RuleContext ctx = new RuleContext();
-        ctx.getReport().addListener(createReportListener()); // alternative way to collect violations
+        //ctx.getReport().addListener(createReportListener()); // alternative way to collect violations
 
         try {
             PMD.processFiles(configuration, ruleSetFactory, files, ctx,
@@ -78,15 +78,15 @@ public class ComplexityCalculator extends AbstractCalculator implements Calculat
 //		System.out.println(rendererOutput.toString());
         Paradigm p = directory.endsWith("orig") ? Paradigm.imperative : Paradigm.reactive;
 
-        FileUtils.write(new File(p + ".json"), rendererOutput.toString());
+//      FileUtils.write(new File(p + ".json"), rendererOutput.toString(), "UTF-8");
 
-        System.out.println("Calculated complexities from directory " + directory);
-        System.out.println("Using " + numThread + " threads");
+//      System.out.println("Calculated complexities from directory " + directory);
+//      System.out.println("Using " + numThread + " threads");
 
         parseJSONStringAndStoreResults(rendererOutput.toString());
     }
 
-    public void parseJSONStringAndStoreResults(String jsonString) {
+    private void parseJSONStringAndStoreResults(String jsonString) {
 
         JSONParser parser = new JSONParser();
 
@@ -108,6 +108,12 @@ public class ComplexityCalculator extends AbstractCalculator implements Calculat
                         currentClass = tokens[1];
                     }
                     else if (type.equals("method") ) { // only store methods
+
+                        if (currentClass == null) {
+                            String[] filenameTokens = fileObject.get("filename").toString().split("\\\\");
+                            String filename = filenameTokens[filenameTokens.length - 1];
+                            currentClass = filename.substring(0, filename.indexOf('.'));
+                        }
                         Method method = getMethod(currentClass, tokens[1]);
 
                         String[] t = tokens[2].split("[ .]");
@@ -163,19 +169,19 @@ public class ComplexityCalculator extends AbstractCalculator implements Calculat
             @Override
             public FileVisitResult visitFile(Path path, BasicFileAttributes attrs) throws IOException {
                 if (matcher.matches(path.getFileName())) {
-                    System.out.printf("Using %s%n", path);
+                    //System.out.printf("Using %s%n", path);
                     files.add(new FileDataSource(path.toFile()));
                 } else {
-                    System.out.printf("Ignoring %s%n", path);
+                    //System.out.printf("Ignoring %s%n", path);
                 }
                 return super.visitFile(path, attrs);
             }
         });
-        System.out.printf("Analyzing %d files in %s%n", files.size(), basePath);
+        // System.out.printf("Analyzing %d files in %s%n", files.size(), basePath);
         return files;
     }
 
-    public static List<DataSource> getDataSourcesFromDirectory(String directory) throws IOException {
-        return determineFiles("D:\\OpenSourceProjects\\ReadabilityFeaturesCalculator\\src\\main\\data\\" + directory);
+    public List<DataSource> getDataSourcesFromDirectory(String directory) throws IOException {
+        return determineFiles(this.directory);
     }
 }

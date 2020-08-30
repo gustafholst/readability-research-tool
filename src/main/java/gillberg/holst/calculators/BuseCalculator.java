@@ -28,6 +28,7 @@ public class BuseCalculator extends AbstractCalculator implements Calculator {
 
         for (File file : files) {
             CompilationUnit cu = readFile(file);
+            parseCompilationUnitAndStoreResults(cu);
         }
     }
 

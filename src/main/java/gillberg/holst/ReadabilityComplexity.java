@@ -1,6 +1,5 @@
 package gillberg.holst;
 
-import com.ipeirotis.readability.engine.Readability;
 
 public class ReadabilityComplexity {
 

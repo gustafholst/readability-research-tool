@@ -9,9 +9,7 @@ import gillberg.holst.exceptions.FeatureNotSetException;
 import gillberg.holst.exceptions.UnknownParadigmException;
 import gillberg.holst.features.BuseReadability;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class Method extends MethodDeclaration{
@@ -26,24 +24,30 @@ public class Method extends MethodDeclaration{
 
     public final static String NOT_SET = "not set";
 
-    public final String className;
-    public final String returnType;
-    public final String signature;
+    public String className;
+    public String returnType;
+    public String signature;
 
     public Method(String className, MethodDeclaration declaration) {
-        this.className = className;
+        String tempClass = className;
 
         String n = declaration.getDeclarationAsString(false,false,false);
         String[] tokens = n.split(" ");
 
         this.returnType = tokens[0];
-        this.signature = Arrays.stream(tokens).skip(1).collect(Collectors.joining()).replace(" ", "");
+        String tempSignature = Arrays.stream(tokens).skip(1).collect(Collectors.joining()).replace(" ", "");
+
+        initialize(tempClass, tempSignature);
     }
 
     public Method(String className, String signature) {
+        initialize(className, signature);
+    }
+
+    private void initialize(String className, String signature) {
         this.className = className;
         this.signature = signature.replace(" ", "");
-        this.returnType = null;
+        this.calculatedFeatures = new HashMap<>();
     }
 
     public void addCalculatedFeature(CalculatedFeature cf, Number value, Paradigm paradigm) throws FeatureAlreadySetException, UnknownParadigmException {
@@ -55,11 +59,16 @@ public class Method extends MethodDeclaration{
         else if (paradigm == Paradigm.reactive) {
             cf.setValueForRefactored(value);
         }
+        else {
+            throw new UnknownParadigmException(paradigm.toString());
+        }
 
-        throw new UnknownParadigmException(paradigm.toString());
+        calculatedFeatures.put(feature.getName(), feature);
+
+
     }
 
-    private CalculatedFeature findCalculatedFeature(CalculatedFeature searched) {
+    public CalculatedFeature findCalculatedFeature(CalculatedFeature searched) {
         if (calculatedFeatures.containsKey(searched.getName())) {
             return calculatedFeatures.get(searched.getName());
         }
