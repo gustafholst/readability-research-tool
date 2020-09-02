@@ -11,10 +11,10 @@ import it.unimol.readability.metric.runnable.SerializedReadability;
 
 public class MySerializedReadability extends SerializedReadability {
 
-    private UnifiedMetricClassifier classifier;
+    private final UnifiedMetricClassifier classifier;
 
     public MySerializedReadability() {
-        File classifierFile = new File("D:\\Miun\\AAExjobb\\readability\\readability.classifier");
+        File classifierFile = new File("src\\main\\resources\\readability.classifier");
         if (!classifierFile.exists()) {
             System.err.println("Classifier file not existing: " + classifierFile.getPath());
             System.exit(-1);
@@ -24,13 +24,8 @@ public class MySerializedReadability extends SerializedReadability {
 
 
     public static void main(String[] args) {
-//        if (args.length == 0) {
-//            System.err.println("Please, specify the path of the file you want to classify.");
-//            System.exit(-1);
-//        }
 
-        //MyUnifiedMetricClassifier classifier = (MyUnifiedMetricClassifier) MyUnifiedMetricClassifier.loadClassifier(new File("D:\\Miun\\AAExjobb\\readability\\readability.classifier"));
-
+        // Code for creating new classifier /////////////////////////////
 
         MyUnifiedMetricClassifier classifier = new MyUnifiedMetricClassifier();
 
@@ -43,6 +38,9 @@ public class MySerializedReadability extends SerializedReadability {
         }
 
         classifier.saveClassifier(new File("NewClassifier.classifier"));
+
+        //////////////////////////////////
+
 
 
         //File file = new File(args[0]);
@@ -76,6 +74,8 @@ public class MySerializedReadability extends SerializedReadability {
     }
 
     public Map<String, Double> getReadabilityMap(File fileName) throws IOException {
+
+        //org.eclipse.core.runtime.SubMonitor temp = org.eclipse.core.runtime.SubMonitor.split(int);
         return classifier.classifyClassMethods(fileName);
     }
 }

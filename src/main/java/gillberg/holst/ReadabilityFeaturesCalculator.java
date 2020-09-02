@@ -17,6 +17,9 @@ import com.github.javaparser.ast.stmt.WhileStmt;
 import gillberg.holst.calculators.ComplexityCalculator;
 import gillberg.holst.enums.NodeType;
 import gillberg.holst.enums.Paradigm;
+import gillberg.holst.exceptions.FeatureAlreadySetException;
+import gillberg.holst.exceptions.MethodNotRefactoredException;
+import gillberg.holst.exceptions.UnknownParadigmException;
 import gillberg.holst.features.CyclomaticComplexity;
 import it.unimol.readability.metric.FeatureCalculator;
 import it.unimol.readability.metric.output.CSVWriter;
@@ -32,15 +35,12 @@ import selector.runnable.MethodsExtractor;
 import static raykernel.apps.readability.eval.Main.getReadability;
 
 import java.io.*;
-import java.nio.charset.Charset;
 import java.util.*;
 
 public class ReadabilityFeaturesCalculator {
 
 	private static final List<Method> methodList = new ArrayList<>();
 	private static final List<Method> refactored = new ArrayList<>();
-
-
 
 	public static Optional<Method> findMethod(Method method) {
 		return methodList.stream()
@@ -79,11 +79,23 @@ public class ReadabilityFeaturesCalculator {
 	}
 
 	public static void calculateComplexities() throws IOException, ParseException {
-		ComplexityCalculator origCalculator = new ComplexityCalculator("source_code_orig", methodList);
-		origCalculator.calculate();
 
-		ComplexityCalculator rxCalculator = new ComplexityCalculator("source_code_rx", methodList);
-		rxCalculator.calculate();
+		try {
+
+			ComplexityCalculator origCalculator = new ComplexityCalculator("source_code_orig", methodList);
+			origCalculator.calculate();
+
+			ComplexityCalculator rxCalculator = new ComplexityCalculator("source_code_rx", methodList);
+			rxCalculator.calculate();
+
+		} catch (FeatureAlreadySetException e) {
+			e.printStackTrace();
+		} catch (MethodNotRefactoredException e) {
+			e.printStackTrace();
+		} catch (UnknownParadigmException e) {
+			e.printStackTrace();
+		}
+
 	}
 
 //	public static void parseSourceCodeFileAndStoreResults(String filePath, Paradigm paradigm) {

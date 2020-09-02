@@ -15,8 +15,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
-
-import static raykernel.apps.readability.eval.Main.getReadability;
+import java.util.Optional;
 
 public class ScalabrinoCalculator extends AbstractCalculator implements Calculator {
 
@@ -28,7 +27,7 @@ public class ScalabrinoCalculator extends AbstractCalculator implements Calculat
     }
 
     @Override
-    public void calculate() throws IOException {
+    public void calculate() {
         File[] files = getJavaFilesFromDir(this.directory);
 
         for (File file : files) {
@@ -42,7 +41,7 @@ public class ScalabrinoCalculator extends AbstractCalculator implements Calculat
             Map<String, Double> readabilityMap = scalabrinoReadability.getReadabilityMap(file);
 
             for (String method : readabilityMap.keySet()) {
-                Method m = getMethod(getClassName(), method);
+                Method m = getMethod(getClassName(file.getName()), method);
 
                 Double value = readabilityMap.get(method);
                 m.addCalculatedFeature(new ScalabrinoReadability(), value, getParadigm());
@@ -53,8 +52,28 @@ public class ScalabrinoCalculator extends AbstractCalculator implements Calculat
         }
     }
 
-    private String getClassName() {
-        return this.directory.substring(0, this.directory.indexOf('.'));
+    @Override
+    protected Method getMethod(String className, String signature) throws MethodNotRefactoredException {
+        //Scalabrino tool doesnt not add parameter list (NOT ALLOWING OVERLOADED METHODS!!!)
+
+        Method temp = new Method(className, signature);
+
+        Optional<Method> foundMethod = this.methodList.stream().
+                filter(m -> {
+                            String sign = m.signature.substring(0, m.signature.indexOf("("));
+                            return sign.equals(signature) && m.className.equals(className);
+                        }
+                ).findFirst();
+
+        if (foundMethod.isPresent()) {
+            return foundMethod.get();
+        }
+
+        throw new MethodNotRefactoredException("No method [" + className + " " + signature + "] in memory");
+    }
+
+    private String getClassName(String fileName) {
+        return fileName.substring(0, fileName.indexOf('.'));
     }
 
 }

@@ -54,18 +54,16 @@ public class Method extends MethodDeclaration{
         CalculatedFeature feature = findCalculatedFeature(cf);
 
         if (paradigm == Paradigm.imperative) {
-            cf.setValueForOriginal(value);
+            feature.setValueForOriginal(value);
         }
         else if (paradigm == Paradigm.reactive) {
-            cf.setValueForRefactored(value);
+            feature.setValueForRefactored(value);
         }
         else {
             throw new UnknownParadigmException(paradigm.toString());
         }
 
         calculatedFeatures.put(feature.getName(), feature);
-
-
     }
 
     public CalculatedFeature findCalculatedFeature(CalculatedFeature searched) {

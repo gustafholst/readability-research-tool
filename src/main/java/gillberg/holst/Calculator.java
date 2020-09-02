@@ -1,11 +1,12 @@
 package gillberg.holst;
 
-import gillberg.holst.enums.Feature;
+import gillberg.holst.exceptions.FeatureAlreadySetException;
+import gillberg.holst.exceptions.MethodNotRefactoredException;
+import gillberg.holst.exceptions.UnknownParadigmException;
 
 import java.io.IOException;
-import java.util.Map;
 
 public interface Calculator {
 
-    public void calculate() throws IOException;
+    void calculate() throws IOException, FeatureAlreadySetException, MethodNotRefactoredException, UnknownParadigmException;
 }

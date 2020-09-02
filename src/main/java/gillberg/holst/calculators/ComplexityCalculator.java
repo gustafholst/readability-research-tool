@@ -47,7 +47,7 @@ public class ComplexityCalculator extends AbstractCalculator implements Calculat
         configuration.setThreads(numThreads);  // in order to not mess upp storing the results
     }
 
-    public void calculate() throws IOException {
+    public void calculate() throws IOException, FeatureAlreadySetException, MethodNotRefactoredException, UnknownParadigmException {
 
         int numThread = configuration.getThreads();
 
@@ -60,7 +60,6 @@ public class ComplexityCalculator extends AbstractCalculator implements Calculat
         renderer.start();
 
         RuleContext ctx = new RuleContext();
-        //ctx.getReport().addListener(createReportListener()); // alternative way to collect violations
 
         try {
             PMD.processFiles(configuration, ruleSetFactory, files, ctx,
@@ -74,19 +73,13 @@ public class ComplexityCalculator extends AbstractCalculator implements Calculat
 
         renderer.end();
         renderer.flush();
-//		System.out.println("Rendered Report:");
-//		System.out.println(rendererOutput.toString());
+
         Paradigm p = directory.endsWith("orig") ? Paradigm.imperative : Paradigm.reactive;
-
-//      FileUtils.write(new File(p + ".json"), rendererOutput.toString(), "UTF-8");
-
-//      System.out.println("Calculated complexities from directory " + directory);
-//      System.out.println("Using " + numThread + " threads");
 
         parseJSONStringAndStoreResults(rendererOutput.toString());
     }
 
-    private void parseJSONStringAndStoreResults(String jsonString) {
+    private void parseJSONStringAndStoreResults(String jsonString) throws MethodNotRefactoredException, UnknownParadigmException, FeatureAlreadySetException {
 
         JSONParser parser = new JSONParser();
 
@@ -126,30 +119,9 @@ public class ComplexityCalculator extends AbstractCalculator implements Calculat
                     }
                 }
             }
-        } catch (FeatureAlreadySetException e) {
-            e.printStackTrace();
-        } catch (UnknownParadigmException e) {
-            e.printStackTrace();
-        } catch (MethodNotRefactoredException e) {
-            System.out.println(e.getMessage());
         } catch (ParseException e) {
             e.printStackTrace();
         }
-    }
-
-    private static ThreadSafeReportListener createReportListener() {
-        return new ThreadSafeReportListener() {
-            @Override
-            public void ruleViolationAdded(RuleViolation ruleViolation) {
-                System.out.printf("%-20s:%d %s%n", ruleViolation.getFilename(),
-                        ruleViolation.getBeginLine(), ruleViolation.getDescription());
-            }
-
-            @Override
-            public void metricAdded(Metric metric) {
-                // ignored
-            }
-        };
     }
 
     private static Renderer createRenderer(Writer writer) {

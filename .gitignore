@@ -19,4 +19,4 @@ src/main/data/source_code_rx/*
 
 !.gitkeep
 
-NewClassifier.classifier
+src/main/resources/NewClassifier.classifier

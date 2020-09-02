@@ -2,6 +2,7 @@ package gillberg.holst;
 
 import org.junit.Test;
 
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 
@@ -10,7 +11,16 @@ import static org.junit.Assert.*;
 public class RefactoredMethodsTest {
 
     @Test(timeout=5000)
-    public void initializingRefactoredMethodsObjectWithExistingFileShouldReturnNonEmptyList() {
+    public void initializingRefactoredMethodsObjectWithNonExistingFileShouldThrow() {
+
+        RefactoredMethods refactoredMethods = new RefactoredMethods(
+                "D:\\OpenSourceProjects\\ReadabilityFeaturesCalculator\\src\\test\\test_data\\nonexisitng_file.txt");
+
+        assertThrows(IOException.class, refactoredMethods::getRefactoredMethods);
+    }
+
+    @Test(timeout=5000)
+    public void initializingRefactoredMethodsObjectWithExistingFileShouldReturnNonEmptyList() throws IOException {
 
         RefactoredMethods refactoredMethods = new RefactoredMethods(
                 "D:\\OpenSourceProjects\\ReadabilityFeaturesCalculator\\src\\test\\test_data\\refactored_methods.txt");
@@ -20,7 +30,7 @@ public class RefactoredMethodsTest {
     }
 
     @Test(timeout=5000)
-    public void FileContainingFiveLinesShouldReturnListOfSizeFive() {
+    public void FileContainingFiveLinesShouldReturnListOfSizeFive() throws IOException {
 
         RefactoredMethods refactoredMethods = new RefactoredMethods(
                 "D:\\OpenSourceProjects\\ReadabilityFeaturesCalculator\\src\\test\\test_data\\five_methods.txt");
@@ -30,7 +40,7 @@ public class RefactoredMethodsTest {
     }
 
     @Test(timeout=5000)
-    public void FileContainingFiveMethodNameShouldReturnListContainingThoseMethods() {
+    public void FileContainingFiveMethodNameShouldReturnListContainingThoseMethods() throws IOException {
 
         RefactoredMethods refactoredMethods = new RefactoredMethods(
                 "D:\\OpenSourceProjects\\ReadabilityFeaturesCalculator\\src\\test\\test_data\\five_methods.txt");

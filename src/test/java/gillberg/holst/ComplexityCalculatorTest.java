@@ -1,7 +1,10 @@
 package gillberg.holst;
 
 import gillberg.holst.calculators.ComplexityCalculator;
+import gillberg.holst.exceptions.FeatureAlreadySetException;
 import gillberg.holst.exceptions.FeatureNotSetException;
+import gillberg.holst.exceptions.MethodNotRefactoredException;
+import gillberg.holst.exceptions.UnknownParadigmException;
 import gillberg.holst.features.CyclomaticComplexity;
 import org.junit.Test;
 
@@ -10,38 +13,75 @@ import java.util.List;
 
 import static org.junit.Assert.*;
 
-public class ComplexityCalculatorTest {
+public class ComplexityCalculatorTest extends BaseTest {
+
+    @Test
+    public void TryingToGetFeatureThatIsNotYetSetShouldThrow() throws IOException {
+
+        whenRefactoredMethodsHasBeenCreatedWithOneMethod();
+
+        andComplexityCalculatorPointingToOriginalSourceFileHasBeenCreated();
+
+        // No calculation is done
+
+        CalculatedFeature cycFeature = sendToTcpMethod.findCalculatedFeature(new CyclomaticComplexity());
+
+        assertThrows(FeatureNotSetException.class, cycFeature::getValueForOriginal);
+    }
 
     @Test()
-    public void CalculatingComplexityOfClassWithOneOriginalMethod() {
+    public void CalculatingComplexityOfClassWithOneOriginalMethod() throws IOException, FeatureNotSetException, FeatureAlreadySetException, MethodNotRefactoredException, UnknownParadigmException {
 
-        String path = "D:\\OpenSourceProjects\\ReadabilityFeaturesCalculator\\src\\test\\test_data\\one_method.txt";
+        whenRefactoredMethodsHasBeenCreatedWithOneMethod();
 
-        RefactoredMethods refactoredMethods = new RefactoredMethods(path);
-        List<Method> methods = refactoredMethods.getRefactoredMethods();
+        andComplexityCalculatorPointingToOriginalSourceFileHasBeenCreated();
 
-        String basePath = "D:\\OpenSourceProjects\\ReadabilityFeaturesCalculator\\src\\test\\test_data\\";
+        calculator.calculate();
 
-        Calculator calculator = new ComplexityCalculator(basePath + "source_code_orig", methods);
+        CalculatedFeature cycFeature = sendToTcpMethod.findCalculatedFeature(new CyclomaticComplexity());
+        Number actual = cycFeature.getValueForOriginal();
 
-        String className = "TestClass";
-        String signature = "sendToTCP(int,Object)";
+        Number expectedOriginalCyc = 3;
 
-        Method searchedMethod = new Method(className, signature);
+        assertEquals(expectedOriginalCyc, actual);
+    }
 
-        try {
-            calculator.calculate();
+    @Test()
+    public void CalculatingComplexityOfClassWithOneRefactoredMethod() throws IOException, FeatureNotSetException, FeatureAlreadySetException, MethodNotRefactoredException, UnknownParadigmException {
 
-            Method method = methods.get(methods.indexOf(searchedMethod));
-            CalculatedFeature cycFeature = method.findCalculatedFeature(new CyclomaticComplexity());
-            Number actual = cycFeature.getValueForOriginal();
+        whenRefactoredMethodsHasBeenCreatedWithOneMethod();
 
-            Number expectedOriginalCyc = 3;
+        andComplexityCalculatorPointingToRefactoredSourceFileHasBeenCreated();
 
-            assertEquals(expectedOriginalCyc, actual);
+        calculator.calculate();
 
-        } catch (IOException | FeatureNotSetException e) {
-            e.printStackTrace();
-        }
+        CalculatedFeature cycFeature = sendToTcpMethod.findCalculatedFeature(new CyclomaticComplexity());
+        Number actual = cycFeature.getValueForRefactored();
+
+        Number expectedRefactoredCyc = 1;
+
+        assertEquals(expectedRefactoredCyc, actual);
+    }
+
+    @Test
+    public void TryingToSetFeatureThatIsAlreadySetShouldThrow() throws IOException, FeatureAlreadySetException, MethodNotRefactoredException, UnknownParadigmException {
+
+        whenRefactoredMethodsHasBeenCreatedWithOneMethod();
+
+        andComplexityCalculatorPointingToOriginalSourceFileHasBeenCreated();
+
+        //calculating once
+        calculator.calculate();
+
+        //...and once again
+        assertThrows(FeatureAlreadySetException.class, calculator::calculate);
+    }
+
+    private void andComplexityCalculatorPointingToOriginalSourceFileHasBeenCreated() {
+        this.calculator = new ComplexityCalculator(pathToTestDataDirectory + "source_code_orig", methods);
+    }
+
+    private void andComplexityCalculatorPointingToRefactoredSourceFileHasBeenCreated() {
+        this.calculator = new ComplexityCalculator(pathToTestDataDirectory + "source_code_rx", methods);
     }
 }

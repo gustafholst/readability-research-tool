@@ -16,16 +16,12 @@ public class RefactoredMethods {
         this.filePath = filePath;
     }
 
-    public List<Method> getRefactoredMethods() {
+    public List<Method> getRefactoredMethods() throws IOException {
         if (refactoredMethods == null) {
-            try {
-                loadMethods();
-            } catch (IOException e) {
-                System.out.println("Could not load file \"" + this.filePath + "\" reason: " + e.getMessage());
-            }
+            loadMethods();
         }
 
-        return refactoredMethods;
+        return this.refactoredMethods;
     }
 
     private void loadMethods() throws IOException {
