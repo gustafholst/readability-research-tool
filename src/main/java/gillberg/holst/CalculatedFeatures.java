@@ -5,25 +5,52 @@ import gillberg.holst.enums.Feature;
 import gillberg.holst.exceptions.FeatureAlreadySetException;
 import gillberg.holst.exceptions.FeatureNotSetException;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class CalculatedFeatures {
 
-    private final Number[] values;
+    private static CalculatedFeatures instance;
 
-    public CalculatedFeatures() {
-        values = new Number[Feature.values().length];
+    private List<CalculatedFeature> features;
+
+    private CalculatedFeatures() {
+        this.features = new ArrayList<>();
     }
 
-    public void setCalculatedFeature(Feature feature, Number value) throws FeatureAlreadySetException {
-        if (values[feature.ordinal()] != null) {
-            throw new FeatureAlreadySetException("Value for " + feature.toString() + " is already set");
+    public static CalculatedFeatures getInstance() {
+        if (instance == null) {
+            instance = new CalculatedFeatures();
         }
-        values[feature.ordinal()] = value;
+
+        return instance;
     }
 
-    public Number getCalculatedFeature(Feature feature) throws FeatureNotSetException {
-        if (values[feature.ordinal()] == null) {
-            throw new FeatureNotSetException("Value for " + feature.toString() + " is missing");
-        }
-        return values[feature.ordinal()];
+    public void addFeature(CalculatedFeature newFeature) {
+        features.add(newFeature);
     }
+
+    public List<CalculatedFeature> getFeatures() {
+        return features;
+    }
+
+    //    private final Number[] values;
+//
+//    public CalculatedFeatures() {
+//        values = new Number[Feature.values().length];
+//    }
+//
+//    public void setCalculatedFeature(Feature feature, Number value) throws FeatureAlreadySetException {
+//        if (values[feature.ordinal()] != null) {
+//            throw new FeatureAlreadySetException("Value for " + feature.toString() + " is already set");
+//        }
+//        values[feature.ordinal()] = value;
+//    }
+//
+//    public Number getCalculatedFeature(Feature feature) throws FeatureNotSetException {
+//        if (values[feature.ordinal()] == null) {
+//            throw new FeatureNotSetException("Value for " + feature.toString() + " is missing");
+//        }
+//        return values[feature.ordinal()];
+//    }
 }

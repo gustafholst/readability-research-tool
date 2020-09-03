@@ -37,4 +37,11 @@ public abstract class CalculatedFeature {
 
     public abstract String getName();
 
+    @Override
+    public boolean equals(Object o) {
+        if (o instanceof CalculatedFeature) {
+            return this.getName().equals(((CalculatedFeature) o).getName());
+        }
+        return false;
+    }
 }
