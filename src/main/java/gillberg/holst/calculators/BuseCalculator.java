@@ -3,6 +3,7 @@ package gillberg.holst.calculators;
 import com.github.javaparser.ast.CompilationUnit;
 
 import gillberg.holst.Calculator;
+import gillberg.holst.Context;
 import gillberg.holst.Method;
 import gillberg.holst.enums.Paradigm;
 import gillberg.holst.exceptions.FeatureAlreadySetException;
@@ -18,13 +19,13 @@ import static raykernel.apps.readability.eval.Main.getReadability;
 
 public class BuseCalculator extends AbstractCalculator implements Calculator {
 
-    public BuseCalculator(String dir, List<Method> methods) {
-        super(dir, methods);
+    public BuseCalculator(Context context, Paradigm paradigm) {
+        super(context, paradigm);
     }
 
     @Override
     public void calculate() throws IOException {
-        File[] files = getJavaFilesFromDir(this.directory);
+        File[] files = getJavaFilesFromDir(getDirectory());
 
         for (File file : files) {
             CompilationUnit cu = readFile(file);
@@ -37,12 +38,14 @@ public class BuseCalculator extends AbstractCalculator implements Calculator {
                 .forEach(t -> t.getMethods()   // for each class
                         .forEach(m -> {        // for each method
                             try {
-                                Method method = getMethod(t.getNameAsString(), m);
-                                Paradigm paradigm = getParadigm();
+                                if (context.shouldCalculate(t.getNameAsString(), m.getSignature().asString())) {
+                                    Method method = getMethod(t.getNameAsString(), m);
+                                    Paradigm paradigm = getParadigm();
 
-                                double readability = getReadability(m.toString());
-                                method.addCalculatedFeature(new BuseReadability(), readability, paradigm);
-                            } catch (MethodNotRefactoredException | UnknownParadigmException | FeatureAlreadySetException e) {
+                                    double readability = getReadability(m.toString());
+                                    method.addCalculatedFeature(new BuseReadability(), readability, paradigm);
+                                }
+                            } catch (MethodNotRefactoredException | UnknownParadigmException | FeatureAlreadySetException | IOException e) {
                                 System.out.println(e.getMessage());
                             }
 

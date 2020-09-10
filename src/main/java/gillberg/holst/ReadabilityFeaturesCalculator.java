@@ -15,12 +15,13 @@ import com.github.javaparser.ast.stmt.WhileStmt;
 //import com.ipeirotis.readability.enums.MetricType;
 
 import gillberg.holst.calculators.ComplexityCalculator;
+import gillberg.holst.enums.Feature;
 import gillberg.holst.enums.NodeType;
 import gillberg.holst.enums.Paradigm;
-import gillberg.holst.exceptions.FeatureAlreadySetException;
-import gillberg.holst.exceptions.MethodNotRefactoredException;
-import gillberg.holst.exceptions.UnknownParadigmException;
+import gillberg.holst.exceptions.*;
+import gillberg.holst.features.BuseReadability;
 import gillberg.holst.features.CyclomaticComplexity;
+import gillberg.holst.features.ScalabrinoReadability;
 import it.unimol.readability.metric.FeatureCalculator;
 import it.unimol.readability.metric.output.CSVWriter;
 import it.unimol.readability.metric.output.OutputException;
@@ -39,24 +40,23 @@ import java.util.*;
 
 public class ReadabilityFeaturesCalculator {
 
-	private static final List<Method> methodList = new ArrayList<>();
-	private static final List<Method> refactored = new ArrayList<>();
 
-	public static Optional<Method> findMethod(Method method) {
-		return methodList.stream()
-				.filter(m -> m.equals(method))
-				.findFirst();
-	}
 
-	public static Method findOrCreateMethod(String className, MethodDeclaration method) {
-		Method temp = new Method(className, method);
-		return findMethod(temp).orElse(temp);
-	}
-
-	public static Method findOrCreateMethod(String className, String name) {
-		Method temp = new Method(className, name);
-		return findMethod(temp).orElse(temp);
-	}
+//	public static Optional<Method> findMethod(Method method) {
+//		return methodList.stream()
+//				.filter(m -> m.equals(method))
+//				.findFirst();
+//	}
+//
+//	public static Method findOrCreateMethod(String className, MethodDeclaration method) {
+//		Method temp = new Method(className, method);
+//		return findMethod(temp).orElse(temp);
+//	}
+//
+//	public static Method findOrCreateMethod(String className, String name) {
+//		Method temp = new Method(className, name);
+//		return findMethod(temp).orElse(temp);
+//	}
 
 	public static String getDataPath() {
 		String sep = File.separator;
@@ -78,25 +78,25 @@ public class ReadabilityFeaturesCalculator {
 		return ((int) str.chars().filter(ch -> ch == searched).count());
 	}
 
-	public static void calculateComplexities() throws IOException, ParseException {
-
-		try {
-
-			ComplexityCalculator origCalculator = new ComplexityCalculator("source_code_orig", methodList);
-			origCalculator.calculate();
-
-			ComplexityCalculator rxCalculator = new ComplexityCalculator("source_code_rx", methodList);
-			rxCalculator.calculate();
-
-		} catch (FeatureAlreadySetException e) {
-			e.printStackTrace();
-		} catch (MethodNotRefactoredException e) {
-			e.printStackTrace();
-		} catch (UnknownParadigmException e) {
-			e.printStackTrace();
-		}
-
-	}
+//	public static void calculateComplexities() throws IOException, ParseException {
+//
+//		try {
+//
+//			ComplexityCalculator origCalculator = new ComplexityCalculator("source_code_orig", methodList);
+//			origCalculator.calculate();
+//
+//			ComplexityCalculator rxCalculator = new ComplexityCalculator("source_code_rx", methodList);
+//			rxCalculator.calculate();
+//
+//		} catch (FeatureAlreadySetException e) {
+//			e.printStackTrace();
+//		} catch (MethodNotRefactoredException e) {
+//			e.printStackTrace();
+//		} catch (UnknownParadigmException e) {
+//			e.printStackTrace();
+//		}
+//
+//	}
 
 //	public static void parseSourceCodeFileAndStoreResults(String filePath, Paradigm paradigm) {
 //
@@ -438,26 +438,62 @@ public class ReadabilityFeaturesCalculator {
 //		System.out.println("DONE!");
 //	}
 
-	// for Tests
-	public List<Method> getMethodList() {
-		return methodList;
-	}
-
-	public void calculateCyclomaticComplexity() {
-
-	}
-
 
 	/**
 	 * @param args
 	 */
 	public static void main(String[] args) throws IOException, ParseException {
 
+		Context context = new BasicContext();
 
+		context.setDirectoryForOriginalCode("D:\\OpenSourceProjects\\ReadabilityFeaturesCalculator\\src\\main\\data\\source_code_orig");
+		context.setDirectoryForRefactoredCode("D:\\OpenSourceProjects\\ReadabilityFeaturesCalculator\\src\\main\\data\\source_code_rx");
 
-		//calculateFeaturesUsingScalabrinoImpl();
+		String methodsPath = "D:\\OpenSourceProjects\\ReadabilityFeaturesCalculator\\src\\main\\data\\refactored_methods.txt";
+		RefactoredMethods refactoredMethods = new RefactoredMethods(methodsPath);
+		context.setRefactoredMethods(refactoredMethods);
 
-		//Calculator origComplexity = new ComplexityCalculator(get);
+		//CalculatedFeatures.getInstance().addFeature(new BuseReadability());
+		//CalculatedFeatures.getInstance().addFeature(new ScalabrinoReadability());
+		CalculatedFeatures.getInstance().addFeature(new CyclomaticComplexity());
+
+		List<Calculator> calculators = new ArrayList<>();
+
+		for (CalculatedFeature cf : CalculatedFeatures.getInstance().getFeatures()) {
+			calculators.addAll(List.of(cf.getCalculators(context)));
+		}
+
+		System.out.println("Calculating...");
+
+		for (Calculator c : calculators) {
+			try {
+				c.calculate();
+			} catch (FeatureAlreadySetException | MethodNotRefactoredException | UnknownParadigmException e) {
+				//System.out.println(e.getMessage());
+				e.printStackTrace();
+			}
+		}
+
+		System.out.println("Preparing writer...");
+
+		ResultsWriter jsonWriter = new JSONResultsWriter();
+		jsonWriter.setFileName("jsontest");
+		for (Method m : context.getMethods()) {
+			try {
+				jsonWriter.addRow(m);
+			} catch (FeatureNotSetException e) {
+				//System.err.println(e.getMessage());
+				e.printStackTrace();
+			}
+		}
+
+		System.out.println("Writing to file...");
+
+		try {
+			jsonWriter.writeToFile();
+		} catch (FilenameNotSetException e) {
+			e.printStackTrace();
+		}
 	}
 }
 

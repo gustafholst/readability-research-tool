@@ -1,13 +1,13 @@
 package gillberg.holst;
 
 import com.github.javaparser.ast.body.MethodDeclaration;
-import gillberg.holst.enums.Feature;
 import gillberg.holst.enums.Paradigm;
 import gillberg.holst.exceptions.ValueNotSetException;
 import gillberg.holst.exceptions.FeatureAlreadySetException;
 import gillberg.holst.exceptions.FeatureNotSetException;
 import gillberg.holst.exceptions.UnknownParadigmException;
 import gillberg.holst.features.BuseReadability;
+import raykernel.ml.feature.Feature;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -50,17 +50,21 @@ public class Method extends MethodDeclaration{
         this.calculatedFeatures = new HashMap<>();
     }
 
-    public void addCalculatedFeature(CalculatedFeature cf, Number value, Paradigm paradigm) throws FeatureAlreadySetException, UnknownParadigmException {
+    public void addCalculatedFeature(CalculatedFeature cf, Number value, Paradigm paradigm) throws UnknownParadigmException, FeatureAlreadySetException {
         CalculatedFeature feature = findCalculatedFeature(cf);
 
-        if (paradigm == Paradigm.imperative) {
-            feature.setValueForOriginal(value);
-        }
-        else if (paradigm == Paradigm.reactive) {
-            feature.setValueForRefactored(value);
-        }
-        else {
-            throw new UnknownParadigmException(paradigm.toString());
+        try {
+            if (paradigm == Paradigm.imperative) {
+                feature.setValueForOriginal(value);
+            }
+            else if (paradigm == Paradigm.reactive) {
+                feature.setValueForRefactored(value);
+            }
+            else {
+                throw new UnknownParadigmException(paradigm.toString());
+            }
+        } catch (FeatureAlreadySetException fase) {
+            throw new FeatureAlreadySetException(fase.getMessage() + " for method '" + signature + "' in class '" + className + "'");
         }
 
         calculatedFeatures.put(feature.getName(), feature);

@@ -1,6 +1,7 @@
 package gillberg.holst;
 
 import gillberg.holst.calculators.ComplexityCalculator;
+import gillberg.holst.enums.Paradigm;
 import gillberg.holst.exceptions.FeatureAlreadySetException;
 import gillberg.holst.exceptions.FeatureNotSetException;
 import gillberg.holst.exceptions.MethodNotRefactoredException;
@@ -78,10 +79,10 @@ public class ComplexityCalculatorTest extends BaseTest {
     }
 
     private void andComplexityCalculatorPointingToOriginalSourceFileHasBeenCreated() {
-        this.calculator = new ComplexityCalculator(pathToTestDataDirectory + "source_code_orig", methods);
+        this.calculator = new ComplexityCalculator(this.currentContext, Paradigm.imperative);
     }
 
     private void andComplexityCalculatorPointingToRefactoredSourceFileHasBeenCreated() {
-        this.calculator = new ComplexityCalculator(pathToTestDataDirectory + "source_code_rx", methods);
+        this.calculator = new ComplexityCalculator(this.currentContext, Paradigm.reactive);
     }
 }

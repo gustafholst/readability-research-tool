@@ -27,11 +27,11 @@ public class CalculatedFeatures {
     }
 
     public void addFeature(CalculatedFeature newFeature) {
-        features.add(newFeature);
+        this.features.add(newFeature);
     }
 
     public List<CalculatedFeature> getFeatures() {
-        return features;
+        return this.features;
     }
 
     //    private final Number[] values;

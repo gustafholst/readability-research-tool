@@ -1,16 +1,19 @@
 package gillberg.holst;
 
+import com.github.javaparser.ast.body.MethodDeclaration;
+import gillberg.holst.exceptions.MethodNotRefactoredException;
 import org.apache.commons.io.FileUtils;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 public class RefactoredMethods {
 
     private List<Method> refactoredMethods;
-    String filePath;
+    private final String filePath;
 
     public RefactoredMethods(String filePath) {
         this.filePath = filePath;
@@ -41,8 +44,25 @@ public class RefactoredMethods {
         }
     }
 
-    public boolean shouldCalculate(Method method) {
-        return refactoredMethods.contains(method);
+    public Method getMethod(String className, MethodDeclaration methodDeclaration) throws MethodNotRefactoredException, IOException {
+        Method temp = new Method(className, methodDeclaration);
+        return getMethod(className, temp.signature);
+    }
+
+    public Method getMethod(String className, String signature) throws MethodNotRefactoredException, IOException {
+
+        Method temp = new Method(className, signature);
+
+        Optional<Method> foundMethod = getRefactoredMethods().stream().filter(m -> m.equals(temp)).findFirst();
+        if (foundMethod.isPresent()) {
+            return foundMethod.get();
+        }
+
+        throw new MethodNotRefactoredException("No method [" + className + " " + signature + "] in memory");
+    }
+
+    public boolean shouldCalculate(Method method) throws IOException {
+        return getRefactoredMethods().contains(method);
     }
 
 

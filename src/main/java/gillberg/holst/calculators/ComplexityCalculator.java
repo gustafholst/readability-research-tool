@@ -1,6 +1,7 @@
 package gillberg.holst.calculators;
 
 import gillberg.holst.Calculator;
+import gillberg.holst.Context;
 import gillberg.holst.Method;
 import gillberg.holst.enums.Feature;
 import gillberg.holst.enums.Paradigm;
@@ -32,8 +33,8 @@ public class ComplexityCalculator extends AbstractCalculator implements Calculat
 
     private PMDConfiguration configuration;
 
-    public ComplexityCalculator(String dir, List<Method> methods) {
-        super(dir, methods);
+    public ComplexityCalculator(Context context, Paradigm paradigm) {
+        super(context, paradigm);
 
         this.configuration = new PMDConfiguration();
         this.configuration.setMinimumPriority(RulePriority.LOW);
@@ -49,10 +50,9 @@ public class ComplexityCalculator extends AbstractCalculator implements Calculat
 
     public void calculate() throws IOException, FeatureAlreadySetException, MethodNotRefactoredException, UnknownParadigmException {
 
-        int numThread = configuration.getThreads();
-
         RuleSetFactory ruleSetFactory = RulesetsFactoryUtils.createFactory(configuration);
-        List<DataSource> files = getDataSourcesFromDirectory(this.directory);
+
+        List<DataSource> files = getDataSourcesFromDirectory(getDirectory());
 
         Writer rendererOutput = new StringWriter();
         Renderer renderer = createRenderer(rendererOutput);
@@ -74,12 +74,10 @@ public class ComplexityCalculator extends AbstractCalculator implements Calculat
         renderer.end();
         renderer.flush();
 
-        Paradigm p = directory.endsWith("orig") ? Paradigm.imperative : Paradigm.reactive;
-
         parseJSONStringAndStoreResults(rendererOutput.toString());
     }
 
-    private void parseJSONStringAndStoreResults(String jsonString) throws MethodNotRefactoredException, UnknownParadigmException, FeatureAlreadySetException {
+    private void parseJSONStringAndStoreResults(String jsonString) throws MethodNotRefactoredException, UnknownParadigmException, FeatureAlreadySetException, IOException {
 
         JSONParser parser = new JSONParser();
 
@@ -87,8 +85,9 @@ public class ComplexityCalculator extends AbstractCalculator implements Calculat
             JSONObject rootObject = (JSONObject)parser.parse(jsonString);
             JSONArray filesArray = (JSONArray) rootObject.get("files");
 
-            String currentClass = null;  //keep track of class in case of nested classes
+             //keep track of class in case of nested classes
             for (Object file : filesArray) {
+                String currentClass = null;
                 JSONObject fileObject = (JSONObject)file;
                 JSONArray violationsArray = (JSONArray) fileObject.get("violations");
 
@@ -107,15 +106,19 @@ public class ComplexityCalculator extends AbstractCalculator implements Calculat
                             String filename = filenameTokens[filenameTokens.length - 1];
                             currentClass = filename.substring(0, filename.indexOf('.'));
                         }
-                        Method method = getMethod(currentClass, tokens[1]);
 
-                        String[] t = tokens[2].split("[ .]");
+                        if (context.shouldCalculate(currentClass, tokens[1])) {
 
-                        Number cycValue = Integer.parseInt(t[t.length - 1]);
+                            Method method = getMethod(currentClass, tokens[1]);
 
-                        //method.setValueForFeature(Feature.cyclomatic_complexity, getParadigm(), cyc);
+                            String[] t = tokens[2].split("[ .]");
 
-                        method.addCalculatedFeature(new CyclomaticComplexity(), cycValue, getParadigm());
+                            Number cycValue = Integer.parseInt(t[t.length - 1]);
+
+                            //method.setValueForFeature(Feature.cyclomatic_complexity, getParadigm(), cyc);
+
+                            method.addCalculatedFeature(new CyclomaticComplexity(), cycValue, getParadigm());
+                        }
                     }
                 }
             }
@@ -154,6 +157,6 @@ public class ComplexityCalculator extends AbstractCalculator implements Calculat
     }
 
     public List<DataSource> getDataSourcesFromDirectory(String directory) throws IOException {
-        return determineFiles(this.directory);
+        return determineFiles(directory);
     }
 }

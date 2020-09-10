@@ -2,6 +2,7 @@ package gillberg.holst.calculators;
 
 import com.github.javaparser.ast.CompilationUnit;
 import gillberg.holst.Calculator;
+import gillberg.holst.Context;
 import gillberg.holst.Method;
 import gillberg.holst.MySerializedReadability;
 import gillberg.holst.enums.Paradigm;
@@ -21,14 +22,14 @@ public class ScalabrinoCalculator extends AbstractCalculator implements Calculat
 
     private final MySerializedReadability scalabrinoReadability;
 
-    public ScalabrinoCalculator(String dir, List<Method> methods) {
-        super(dir, methods);
+    public ScalabrinoCalculator(Context context, Paradigm paradigm) {
+        super(context, paradigm);
         this.scalabrinoReadability = new MySerializedReadability();
     }
 
     @Override
     public void calculate() {
-        File[] files = getJavaFilesFromDir(this.directory);
+        File[] files = getJavaFilesFromDir(getDirectory());
 
         for (File file : files) {
             parseFileAndStoreResults(file);
@@ -41,24 +42,30 @@ public class ScalabrinoCalculator extends AbstractCalculator implements Calculat
             Map<String, Double> readabilityMap = scalabrinoReadability.getReadabilityMap(file);
 
             for (String method : readabilityMap.keySet()) {
-                Method m = getMethod(getClassName(file.getName()), method);
+                try {
+                    Method m = getMethod(getClassName(file.getName()), method);
+                    Double value = readabilityMap.get(method);
+                    m.addCalculatedFeature(new ScalabrinoReadability(), value, getParadigm());
+                } catch (MethodNotRefactoredException | UnknownParadigmException | FeatureAlreadySetException e) {
+                    System.out.println(e.getMessage());
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
 
-                Double value = readabilityMap.get(method);
-                m.addCalculatedFeature(new ScalabrinoReadability(), value, getParadigm());
             }
-
-        } catch (IOException | MethodNotRefactoredException | UnknownParadigmException | FeatureAlreadySetException e) {
-            e.printStackTrace();
+        } catch (IOException e) {
+            //e.printStackTrace();
+            System.out.println(e.getMessage());
         }
     }
 
     @Override
-    protected Method getMethod(String className, String signature) throws MethodNotRefactoredException {
+    public Method getMethod(String className, String signature) throws MethodNotRefactoredException, IOException {
         //Scalabrino tool doesnt not add parameter list (NOT ALLOWING OVERLOADED METHODS!!!)
 
         Method temp = new Method(className, signature);
 
-        Optional<Method> foundMethod = this.methodList.stream().
+        Optional<Method> foundMethod = context.getMethods().stream().
                 filter(m -> {
                             String sign = m.signature.substring(0, m.signature.indexOf("("));
                             return sign.equals(signature) && m.className.equals(className);

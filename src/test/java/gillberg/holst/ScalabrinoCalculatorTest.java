@@ -2,6 +2,7 @@ package gillberg.holst;
 
 import gillberg.holst.calculators.BuseCalculator;
 import gillberg.holst.calculators.ScalabrinoCalculator;
+import gillberg.holst.enums.Paradigm;
 import gillberg.holst.exceptions.FeatureAlreadySetException;
 import gillberg.holst.exceptions.FeatureNotSetException;
 import gillberg.holst.exceptions.MethodNotRefactoredException;
@@ -51,10 +52,10 @@ public class ScalabrinoCalculatorTest extends BaseTest {
     }
 
     private void andScalabrinoCalculatorPointingToOriginalSourceFileHasBeenCreated() {
-        this.calculator = new ScalabrinoCalculator(pathToTestDataDirectory + "source_code_orig", methods);
+        this.calculator = new ScalabrinoCalculator(this.currentContext, Paradigm.imperative);
     }
 
     private void andScalabrinoCalculatorPointingToRefactoredSourceFileHasBeenCreated() {
-        this.calculator = new ScalabrinoCalculator(pathToTestDataDirectory + "source_code_rx", methods);
+        this.calculator = new ScalabrinoCalculator(this.currentContext, Paradigm.reactive);
     }
 }

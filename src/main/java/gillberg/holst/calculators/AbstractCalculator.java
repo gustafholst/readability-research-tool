@@ -6,6 +6,7 @@ import com.github.javaparser.ParserConfiguration;
 import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.body.MethodDeclaration;
 import gillberg.holst.Calculator;
+import gillberg.holst.Context;
 import gillberg.holst.Method;
 import gillberg.holst.enums.Paradigm;
 import gillberg.holst.exceptions.MethodNotRefactoredException;
@@ -18,12 +19,12 @@ import java.util.Optional;
 
 public abstract class AbstractCalculator {
 
-    protected final String directory;
-    protected final List<Method> methodList;
+    protected Context context;
+    private Paradigm paradigm;
 
-    protected AbstractCalculator(String dir, List<Method> methods) {
-        this.directory = dir;
-        this.methodList = methods;
+    protected AbstractCalculator(Context context, Paradigm paradigm) {
+        this.context = context;
+        this.paradigm = paradigm;
     }
 
     protected static CompilationUnit readFile(File file) throws IOException {
@@ -62,29 +63,26 @@ public abstract class AbstractCalculator {
         return new File(pathName).listFiles(f -> f.getName().endsWith(".java"));
     }
 
-    protected Paradigm getParadigm() throws UnknownParadigmException {
-        if (directory.endsWith("_orig")) {
-            return Paradigm.imperative;
-        }
-        else if (directory.endsWith("_rx")) {
-            return Paradigm.reactive;
-        }
-        throw new UnknownParadigmException("Cannot determine paradigm from directory name \"" + directory + "\"");
+    protected Paradigm getParadigm() {
+        return paradigm;
+//        if (directory.endsWith("_orig")) {
+//            return Paradigm.imperative;
+//        }
+//        else if (directory.endsWith("_rx")) {
+//            return Paradigm.reactive;
+//        }
+//        throw new UnknownParadigmException("Cannot determine paradigm from directory name \"" + directory + "\"");
     }
 
-    protected Method getMethod(String className, MethodDeclaration methodDeclaration) throws MethodNotRefactoredException {
-        Method temp = new Method(className, methodDeclaration);
-        return getMethod(className, temp.signature);
+    public Method getMethod(String className, MethodDeclaration methodDeclaration) throws MethodNotRefactoredException, IOException {
+        return context.getMethod(className, methodDeclaration);
     }
 
-    protected Method getMethod(String className, String signature) throws MethodNotRefactoredException {
-        Method temp = new Method(className, signature);
+    public Method getMethod(String className, String signature) throws MethodNotRefactoredException, IOException {
+        return context.getMethod(className, signature);
+    }
 
-        Optional<Method> foundMethod = this.methodList.stream().filter(m -> m.equals(temp)).findFirst();
-        if (foundMethod.isPresent()) {
-            return foundMethod.get();
-        }
-
-        throw new MethodNotRefactoredException("No method [" + className + " " + signature + "] in memory");
+    protected String getDirectory() {
+        return this.getParadigm() == Paradigm.imperative ? context.getDirectoryForOriginalCode() : context.getDirectoryForRefactoredCode();
     }
 }

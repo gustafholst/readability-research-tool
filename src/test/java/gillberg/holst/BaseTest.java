@@ -7,8 +7,9 @@ import java.util.List;
 
 public class BaseTest {
     protected String oneMethodPath = "D:\\OpenSourceProjects\\ReadabilityFeaturesCalculator\\src\\test\\test_data\\one_method.txt";
-    private RefactoredMethods refactoredMethods;
     protected List<Method> methods;
+
+    protected Context currentContext;
 
     protected Method sendToTcpMethod;
 
@@ -17,8 +18,13 @@ public class BaseTest {
     protected Calculator calculator;
 
     protected void whenRefactoredMethodsHasBeenCreatedWithOneMethod() throws IOException {
-        this.refactoredMethods = new RefactoredMethods(oneMethodPath);
-        this.methods = this.refactoredMethods.getRefactoredMethods();
+        Context context = new BasicContext();
+        context.setDirectoryForOriginalCode(pathToTestDataDirectory + "source_code_orig");
+        context.setDirectoryForRefactoredCode(pathToTestDataDirectory + "source_code_rx");
+        context.setRefactoredMethods(new RefactoredMethods(oneMethodPath));
+
+        this.currentContext = context;
+        this.methods = context.getMethods();
 
         String className = "TestClass";
         String signature = "sendToTCP(int,Object)";

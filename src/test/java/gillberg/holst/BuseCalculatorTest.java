@@ -2,6 +2,7 @@ package gillberg.holst;
 
 import gillberg.holst.calculators.BuseCalculator;
 import gillberg.holst.calculators.ComplexityCalculator;
+import gillberg.holst.enums.Paradigm;
 import gillberg.holst.exceptions.FeatureAlreadySetException;
 import gillberg.holst.exceptions.FeatureNotSetException;
 import gillberg.holst.exceptions.MethodNotRefactoredException;
@@ -50,11 +51,11 @@ public class BuseCalculatorTest extends BaseTest{
     }
 
     private void andBuseCalculatorPointingToOriginalSourceFileHasBeenCreated() {
-        this.calculator = new BuseCalculator(pathToTestDataDirectory + "source_code_orig", methods);
+        this.calculator = new BuseCalculator(this.currentContext, Paradigm.imperative);
     }
 
     private void andBuseCalculatorPointingToRefactoredSourceFileHasBeenCreated() {
-        this.calculator = new BuseCalculator(pathToTestDataDirectory + "source_code_rx", methods);
+        this.calculator = new BuseCalculator(this.currentContext, Paradigm.reactive);
     }
 
 }

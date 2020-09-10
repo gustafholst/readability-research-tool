@@ -37,6 +37,8 @@ public abstract class CalculatedFeature {
 
     public abstract String getName();
 
+    public abstract Calculator[] getCalculators(Context context);
+
     @Override
     public boolean equals(Object o) {
         if (o instanceof CalculatedFeature) {
