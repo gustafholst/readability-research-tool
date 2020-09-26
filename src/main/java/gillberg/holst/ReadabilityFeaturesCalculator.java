@@ -442,7 +442,7 @@ public class ReadabilityFeaturesCalculator {
 	/**
 	 * @param args
 	 */
-	public static void main(String[] args) throws IOException, ParseException {
+	public static void main(String[] args) throws IOException {
 
 		Context context = new BasicContext();
 
@@ -453,8 +453,8 @@ public class ReadabilityFeaturesCalculator {
 		RefactoredMethods refactoredMethods = new RefactoredMethods(methodsPath);
 		context.setRefactoredMethods(refactoredMethods);
 
-		//CalculatedFeatures.getInstance().addFeature(new BuseReadability());
-		//CalculatedFeatures.getInstance().addFeature(new ScalabrinoReadability());
+		CalculatedFeatures.getInstance().addFeature(new BuseReadability());
+		CalculatedFeatures.getInstance().addFeature(new ScalabrinoReadability());
 		CalculatedFeatures.getInstance().addFeature(new CyclomaticComplexity());
 
 		List<Calculator> calculators = new ArrayList<>();
@@ -476,11 +476,13 @@ public class ReadabilityFeaturesCalculator {
 
 		System.out.println("Preparing writer...");
 
-		ResultsWriter jsonWriter = new JSONResultsWriter();
-		jsonWriter.setFileName("jsontest");
+		//ResultsWriter writer = new JSONResultsWriter();
+		ResultsWriter writer = new CSVResultsWriter();
+
+		writer.setFileName("results");
 		for (Method m : context.getMethods()) {
 			try {
-				jsonWriter.addRow(m);
+				writer.addRow(m);
 			} catch (FeatureNotSetException e) {
 				//System.err.println(e.getMessage());
 				e.printStackTrace();
@@ -490,7 +492,7 @@ public class ReadabilityFeaturesCalculator {
 		System.out.println("Writing to file...");
 
 		try {
-			jsonWriter.writeToFile();
+			writer.writeToFile();
 		} catch (FilenameNotSetException e) {
 			e.printStackTrace();
 		}

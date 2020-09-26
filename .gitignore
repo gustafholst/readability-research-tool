@@ -6,9 +6,9 @@ jar_files.zip
 methods_files.zip
 methods_files/
 measurements.*
-imperative.json
-reactive.json
 DATASET_HOLST*
+*.json
+*.csv
 
 
 complexity_orig/
