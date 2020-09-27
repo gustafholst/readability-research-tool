@@ -29,6 +29,11 @@ public class CSVResultsWriter implements ResultsWriter{
 
         StringBuilder newRow = new StringBuilder();
 
+        newRow.append(method.className);
+        newRow.append(',');
+        newRow.append(method.signature);
+        newRow.append(',');
+
         for (CalculatedFeature f: CalculatedFeatures.getInstance().getFeatures()) {
 
             CalculatedFeature temp = method.findCalculatedFeature(f);
@@ -46,6 +51,11 @@ public class CSVResultsWriter implements ResultsWriter{
 
     private void addColumns() {
         StringBuilder header = new StringBuilder();
+
+        header.append("class_name");
+        header.append(',');
+        header.append("signature");
+        header.append(',');
 
         for (CalculatedFeature f: CalculatedFeatures.getInstance().getFeatures()) {
             String featureName = f.getName();
