@@ -24,6 +24,11 @@ public class BuseCalculator extends AbstractCalculator implements Calculator {
     }
 
     @Override
+    public String getName() {
+        return "Buse readability";
+    }
+
+    @Override
     public void calculate() throws IOException {
         File[] files = getJavaFilesFromDir(getDirectory());
 
@@ -51,4 +56,5 @@ public class BuseCalculator extends AbstractCalculator implements Calculator {
 
                         }));
     }
+
 }

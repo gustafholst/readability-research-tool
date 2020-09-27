@@ -21,6 +21,7 @@ import gillberg.holst.enums.Paradigm;
 import gillberg.holst.exceptions.*;
 import gillberg.holst.features.BuseReadability;
 import gillberg.holst.features.CyclomaticComplexity;
+import gillberg.holst.features.ScalabrinoFeatures;
 import gillberg.holst.features.ScalabrinoReadability;
 import it.unimol.readability.metric.FeatureCalculator;
 import it.unimol.readability.metric.output.CSVWriter;
@@ -453,9 +454,10 @@ public class ReadabilityFeaturesCalculator {
 		RefactoredMethods refactoredMethods = new RefactoredMethods(methodsPath);
 		context.setRefactoredMethods(refactoredMethods);
 
-		CalculatedFeatures.getInstance().addFeature(new BuseReadability());
-		CalculatedFeatures.getInstance().addFeature(new ScalabrinoReadability());
-		CalculatedFeatures.getInstance().addFeature(new CyclomaticComplexity());
+		//CalculatedFeatures.getInstance().addFeature(new BuseReadability());
+		//CalculatedFeatures.getInstance().addFeature(new ScalabrinoReadability());
+		//CalculatedFeatures.getInstance().addFeature(new CyclomaticComplexity());
+		CalculatedFeatures.getInstance().addFeature(new ScalabrinoFeatures());
 
 		List<Calculator> calculators = new ArrayList<>();
 
@@ -463,14 +465,13 @@ public class ReadabilityFeaturesCalculator {
 			calculators.addAll(List.of(cf.getCalculators(context)));
 		}
 
-		System.out.println("Calculating...");
-
 		for (Calculator c : calculators) {
 			try {
+				System.out.println("Calculating " + c.getName() + "...");
 				c.calculate();
 			} catch (FeatureAlreadySetException | MethodNotRefactoredException | UnknownParadigmException e) {
-				//System.out.println(e.getMessage());
-				e.printStackTrace();
+				System.out.println(e.getMessage());
+				//e.printStackTrace();
 			}
 		}
 
@@ -484,8 +485,8 @@ public class ReadabilityFeaturesCalculator {
 			try {
 				writer.addRow(m);
 			} catch (FeatureNotSetException e) {
-				//System.err.println(e.getMessage());
-				e.printStackTrace();
+				System.err.println(e.getMessage());
+				//e.printStackTrace();
 			}
 		}
 

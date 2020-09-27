@@ -9,4 +9,5 @@ import java.io.IOException;
 public interface Calculator {
 
     void calculate() throws IOException, FeatureAlreadySetException, MethodNotRefactoredException, UnknownParadigmException;
+    String getName();
 }

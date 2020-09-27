@@ -65,13 +65,6 @@ public abstract class AbstractCalculator {
 
     protected Paradigm getParadigm() {
         return paradigm;
-//        if (directory.endsWith("_orig")) {
-//            return Paradigm.imperative;
-//        }
-//        else if (directory.endsWith("_rx")) {
-//            return Paradigm.reactive;
-//        }
-//        throw new UnknownParadigmException("Cannot determine paradigm from directory name \"" + directory + "\"");
     }
 
     public Method getMethod(String className, MethodDeclaration methodDeclaration) throws MethodNotRefactoredException, IOException {

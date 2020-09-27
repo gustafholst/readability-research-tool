@@ -3,22 +3,17 @@ package gillberg.holst.calculators;
 import gillberg.holst.Calculator;
 import gillberg.holst.Context;
 import gillberg.holst.Method;
-import gillberg.holst.enums.Feature;
 import gillberg.holst.enums.Paradigm;
 import gillberg.holst.exceptions.FeatureAlreadySetException;
 import gillberg.holst.exceptions.MethodNotRefactoredException;
 import gillberg.holst.exceptions.UnknownParadigmException;
-//import net.sourceforge.pmd.*;
 import gillberg.holst.features.CyclomaticComplexity;
 import net.sourceforge.pmd.*;
 import net.sourceforge.pmd.renderers.JsonRenderer;
 import net.sourceforge.pmd.renderers.Renderer;
-import net.sourceforge.pmd.stat.Metric;
 import net.sourceforge.pmd.util.ClasspathClassLoader;
 import net.sourceforge.pmd.util.datasource.DataSource;
 import net.sourceforge.pmd.util.datasource.FileDataSource;
-import org.apache.commons.io.FileUtils;
-import org.eclipse.core.internal.utils.FileUtil;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
@@ -46,6 +41,11 @@ public class ComplexityCalculator extends AbstractCalculator implements Calculat
         }
         int numThreads = 0;
         configuration.setThreads(numThreads);  // in order to not mess upp storing the results
+    }
+
+    @Override
+    public String getName() {
+        return "Cyclomatic complexity";
     }
 
     public void calculate() throws IOException, FeatureAlreadySetException, MethodNotRefactoredException, UnknownParadigmException {
@@ -146,8 +146,6 @@ public class ComplexityCalculator extends AbstractCalculator implements Calculat
                 if (matcher.matches(path.getFileName())) {
                     //System.out.printf("Using %s%n", path);
                     files.add(new FileDataSource(path.toFile()));
-                } else {
-                    //System.out.printf("Ignoring %s%n", path);
                 }
                 return super.visitFile(path, attrs);
             }

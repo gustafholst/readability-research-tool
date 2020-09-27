@@ -1,6 +1,5 @@
 package gillberg.holst.calculators;
 
-import com.github.javaparser.ast.CompilationUnit;
 import gillberg.holst.Calculator;
 import gillberg.holst.Context;
 import gillberg.holst.Method;
@@ -9,12 +8,10 @@ import gillberg.holst.enums.Paradigm;
 import gillberg.holst.exceptions.FeatureAlreadySetException;
 import gillberg.holst.exceptions.MethodNotRefactoredException;
 import gillberg.holst.exceptions.UnknownParadigmException;
-import gillberg.holst.features.BuseReadability;
 import gillberg.holst.features.ScalabrinoReadability;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -77,6 +74,11 @@ public class ScalabrinoCalculator extends AbstractCalculator implements Calculat
         }
 
         throw new MethodNotRefactoredException("No method [" + className + " " + signature + "] in memory");
+    }
+
+    @Override
+    public String getName() {
+        return "Scalabrino readability";
     }
 
     private String getClassName(String fileName) {

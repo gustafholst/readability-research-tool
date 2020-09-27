@@ -2,6 +2,7 @@ package gillberg.holst;
 
 import gillberg.holst.exceptions.FeatureNotSetException;
 import gillberg.holst.exceptions.FilenameNotSetException;
+import gillberg.holst.features.ScalabrinoFeatures;
 import org.apache.commons.io.FileUtils;
 
 import java.io.File;
@@ -35,6 +36,7 @@ public class CSVResultsWriter implements ResultsWriter{
         newRow.append(',');
 
         for (CalculatedFeature f: CalculatedFeatures.getInstance().getFeatures()) {
+            if (f instanceof ScalabrinoFeatures) continue;
 
             CalculatedFeature temp = method.findCalculatedFeature(f);
 
