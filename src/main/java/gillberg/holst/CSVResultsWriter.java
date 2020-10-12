@@ -16,10 +16,20 @@ public class CSVResultsWriter implements ResultsWriter{
     private String headerLine = null;
     private List<String> rows = new ArrayList<>();
 
+    private char columnSeparator = ',';
+
     private static final String suffix = ".csv";
 
     private static final String origPrefix = "oo_";
     private static final String refactoredPrefix = "rx_";
+
+    public CSVResultsWriter() {
+
+    }
+
+    public CSVResultsWriter(char separator) {
+        columnSeparator = separator;
+    }
 
     @Override
     public void addRow(Method method) throws FeatureNotSetException {
@@ -31,9 +41,9 @@ public class CSVResultsWriter implements ResultsWriter{
         StringBuilder newRow = new StringBuilder();
 
         newRow.append(method.className);
-        newRow.append(',');
+        newRow.append(columnSeparator);
         newRow.append(method.signature);
-        newRow.append(',');
+        newRow.append(columnSeparator);
 
         for (CalculatedFeature f: CalculatedFeatures.getInstance().getFeatures()) {
             if (f instanceof ScalabrinoFeatures) continue;
@@ -41,9 +51,9 @@ public class CSVResultsWriter implements ResultsWriter{
             CalculatedFeature temp = method.findCalculatedFeature(f);
 
             newRow.append(temp.getValueForOriginal());
-            newRow.append(',');
+            newRow.append(columnSeparator);
             newRow.append(temp.getValueForRefactored());
-            newRow.append(',');
+            newRow.append(columnSeparator);
         }
 
         newRow.deleteCharAt(newRow.length() - 1);
@@ -55,19 +65,19 @@ public class CSVResultsWriter implements ResultsWriter{
         StringBuilder header = new StringBuilder();
 
         header.append("class_name");
-        header.append(',');
+        header.append(columnSeparator);
         header.append("signature");
-        header.append(',');
+        header.append(columnSeparator);
 
         for (CalculatedFeature f: CalculatedFeatures.getInstance().getFeatures()) {
             String featureName = f.getName();
 
             header.append(origPrefix);
             header.append(featureName);
-            header.append(',');
+            header.append(columnSeparator);
             header.append(refactoredPrefix);
             header.append(featureName);
-            header.append(',');
+            header.append(columnSeparator);
         }
 
         header.deleteCharAt(header.length() - 1);

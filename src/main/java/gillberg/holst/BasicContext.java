@@ -55,6 +55,7 @@ public class BasicContext implements Context {
 
     @Override
     public boolean shouldCalculate(String className, String signature) throws IOException {
+
         return refactoredMethods.shouldCalculate(new Method(className, signature));
     }
 

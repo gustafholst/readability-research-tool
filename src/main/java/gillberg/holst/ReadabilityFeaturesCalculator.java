@@ -454,10 +454,10 @@ public class ReadabilityFeaturesCalculator {
 		RefactoredMethods refactoredMethods = new RefactoredMethods(methodsPath);
 		context.setRefactoredMethods(refactoredMethods);
 
-		//CalculatedFeatures.getInstance().addFeature(new BuseReadability());
-		//CalculatedFeatures.getInstance().addFeature(new ScalabrinoReadability());
-		//CalculatedFeatures.getInstance().addFeature(new CyclomaticComplexity());
-		CalculatedFeatures.getInstance().addFeature(new ScalabrinoFeatures());
+		CalculatedFeatures.getInstance().addFeature(new BuseReadability());
+		CalculatedFeatures.getInstance().addFeature(new ScalabrinoReadability());
+		CalculatedFeatures.getInstance().addFeature(new CyclomaticComplexity());
+		//CalculatedFeatures.getInstance().addFeature(new ScalabrinoFeatures());
 
 		List<Calculator> calculators = new ArrayList<>();
 
@@ -478,7 +478,7 @@ public class ReadabilityFeaturesCalculator {
 		System.out.println("Preparing writer...");
 
 		//ResultsWriter writer = new JSONResultsWriter();
-		ResultsWriter writer = new CSVResultsWriter();
+		ResultsWriter writer = new CSVResultsWriter(';');
 
 		writer.setFileName("results");
 		for (Method m : context.getMethods()) {
