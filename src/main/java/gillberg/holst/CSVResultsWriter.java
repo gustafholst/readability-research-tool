@@ -2,6 +2,7 @@ package gillberg.holst;
 
 import gillberg.holst.exceptions.FeatureNotSetException;
 import gillberg.holst.exceptions.FilenameNotSetException;
+import gillberg.holst.features.CyclomaticComplexityFeatures;
 import gillberg.holst.features.ScalabrinoFeatures;
 import org.apache.commons.io.FileUtils;
 
@@ -46,7 +47,8 @@ public class CSVResultsWriter implements ResultsWriter{
         newRow.append(columnSeparator);
 
         for (CalculatedFeature f: CalculatedFeatures.getInstance().getFeatures()) {
-            if (f instanceof ScalabrinoFeatures) continue;
+            if (f instanceof ScalabrinoFeatures || f instanceof CyclomaticComplexityFeatures)
+                continue;
 
             CalculatedFeature temp = method.findCalculatedFeature(f);
 
@@ -70,6 +72,9 @@ public class CSVResultsWriter implements ResultsWriter{
         header.append(columnSeparator);
 
         for (CalculatedFeature f: CalculatedFeatures.getInstance().getFeatures()) {
+            if (f instanceof ScalabrinoFeatures || f instanceof CyclomaticComplexityFeatures)
+                continue;
+
             String featureName = f.getName();
 
             header.append(origPrefix);

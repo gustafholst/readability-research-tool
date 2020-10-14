@@ -1,10 +1,5 @@
 package gillberg.holst;
 
-
-import gillberg.holst.enums.Feature;
-import gillberg.holst.exceptions.FeatureAlreadySetException;
-import gillberg.holst.exceptions.FeatureNotSetException;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -27,7 +22,8 @@ public class CalculatedFeatures {
     }
 
     public void addFeature(CalculatedFeature newFeature) {
-        this.features.add(newFeature);
+        if (!this.features.contains(newFeature))
+            this.features.add(newFeature);
     }
 
     public List<CalculatedFeature> getFeatures() {

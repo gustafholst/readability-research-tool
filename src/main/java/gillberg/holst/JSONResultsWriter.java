@@ -1,6 +1,5 @@
 package gillberg.holst;
 
-import gillberg.holst.enums.Feature;
 import gillberg.holst.enums.Paradigm;
 import gillberg.holst.exceptions.ValueNotSetException;
 import gillberg.holst.exceptions.FeatureNotSetException;
