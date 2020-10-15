@@ -26,7 +26,7 @@ import java.util.*;
 
 public class ComplexityCalculator extends AbstractCalculator implements Calculator {
 
-    private PMDConfiguration configuration;
+    private final PMDConfiguration configuration;
 
     public ComplexityCalculator(Context context, Paradigm paradigm) {
         super(context, paradigm);
@@ -34,6 +34,7 @@ public class ComplexityCalculator extends AbstractCalculator implements Calculat
         this.configuration = new PMDConfiguration();
         this.configuration.setMinimumPriority(RulePriority.LOW);
         this.configuration.setRuleSets("D:\\OpenSourceProjects\\ReadabilityFeaturesCalculator\\src\\main\\resources\\cyc_ruleset.xml");
+
         try {
             configuration.prependClasspath("/home/workspace/target/classes");
         } catch (IOException e) {
@@ -114,8 +115,6 @@ public class ComplexityCalculator extends AbstractCalculator implements Calculat
                             String[] t = tokens[2].split("[ .]");
 
                             Number cycValue = Integer.parseInt(t[t.length - 1]);
-
-                            //method.setValueForFeature(Feature.cyclomatic_complexity, getParadigm(), cyc);
 
                             method.addCalculatedFeature(new CyclomaticComplexity(), cycValue, getParadigm());
                         }

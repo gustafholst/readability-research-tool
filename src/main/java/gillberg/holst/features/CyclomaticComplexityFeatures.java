@@ -8,9 +8,15 @@ import gillberg.holst.calculators.CycFeaturesCalculator;
 import gillberg.holst.enums.Paradigm;
 
 public class CyclomaticComplexityFeatures extends CalculatedFeature {
+
     @Override
     public String getName() {
         return "cyclomatic complexity features";
+    }
+
+    @Override
+    public boolean shouldBePresentedAsAColumn() {
+        return false;
     }
 
     @Override

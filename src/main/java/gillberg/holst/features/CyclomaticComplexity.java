@@ -5,6 +5,7 @@ import gillberg.holst.calculators.ComplexityCalculator;
 import gillberg.holst.enums.Paradigm;
 
 public class CyclomaticComplexity extends CalculatedFeature {
+
     @Override
     public String getName() {
         return "cyclomatic_complexity";

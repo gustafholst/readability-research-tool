@@ -47,15 +47,14 @@ public class CSVResultsWriter implements ResultsWriter{
         newRow.append(columnSeparator);
 
         for (CalculatedFeature f: CalculatedFeatures.getInstance().getFeatures()) {
-            if (f instanceof ScalabrinoFeatures || f instanceof CyclomaticComplexityFeatures)
-                continue;
+            if (f.shouldBePresentedAsAColumn()) {
+                CalculatedFeature temp = method.findCalculatedFeature(f);
 
-            CalculatedFeature temp = method.findCalculatedFeature(f);
-
-            newRow.append(temp.getValueForOriginal());
-            newRow.append(columnSeparator);
-            newRow.append(temp.getValueForRefactored());
-            newRow.append(columnSeparator);
+                newRow.append(temp.getValueForOriginal());
+                newRow.append(columnSeparator);
+                newRow.append(temp.getValueForRefactored());
+                newRow.append(columnSeparator);
+            }
         }
 
         newRow.deleteCharAt(newRow.length() - 1);
@@ -72,17 +71,16 @@ public class CSVResultsWriter implements ResultsWriter{
         header.append(columnSeparator);
 
         for (CalculatedFeature f: CalculatedFeatures.getInstance().getFeatures()) {
-            if (f instanceof ScalabrinoFeatures || f instanceof CyclomaticComplexityFeatures)
-                continue;
+            if (f.shouldBePresentedAsAColumn()) {
+                String featureName = f.getName();
 
-            String featureName = f.getName();
-
-            header.append(origPrefix);
-            header.append(featureName);
-            header.append(columnSeparator);
-            header.append(refactoredPrefix);
-            header.append(featureName);
-            header.append(columnSeparator);
+                header.append(origPrefix);
+                header.append(featureName);
+                header.append(columnSeparator);
+                header.append(refactoredPrefix);
+                header.append(featureName);
+                header.append(columnSeparator);
+            }
         }
 
         header.deleteCharAt(header.length() - 1);

@@ -9,9 +9,15 @@ import gillberg.holst.calculators.ScalabrinoFeaturesCalculator;
 import gillberg.holst.enums.Paradigm;
 
 public class ScalabrinoFeatures extends CalculatedFeature {
+
     @Override
     public String getName() {
         return "Scalabrino features";
+    }
+
+    @Override
+    public boolean shouldBePresentedAsAColumn() {
+        return false;
     }
 
     @Override

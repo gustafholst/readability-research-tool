@@ -3,10 +3,7 @@ package gillberg.holst.calculators;
 import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.expr.BinaryExpr;
 import com.github.javaparser.ast.nodeTypes.NodeWithIdentifier;
-import com.github.javaparser.ast.stmt.CatchClause;
-import com.github.javaparser.ast.stmt.ForStmt;
-import com.github.javaparser.ast.stmt.IfStmt;
-import com.github.javaparser.ast.stmt.WhileStmt;
+import com.github.javaparser.ast.stmt.*;
 import gillberg.holst.*;
 import gillberg.holst.enums.Paradigm;
 import gillberg.holst.exceptions.FeatureAlreadySetException;
@@ -72,7 +69,7 @@ public class CycFeaturesCalculator extends AbstractCalculator implements Calcula
 									if (node instanceof IfStmt) {
 										nodeCounts[Feature.num_if_statements.ordinal()]++;
 									}
-									if (node instanceof ForStmt || node instanceof WhileStmt) {
+									if (node instanceof ForStmt || node instanceof WhileStmt || node instanceof ForEachStmt) {
 										nodeCounts[Feature.num_loops.ordinal()]++;
 									}
 									if (node instanceof CatchClause) {

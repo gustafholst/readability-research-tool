@@ -35,6 +35,10 @@ public abstract class CalculatedFeature {
         this.refactored = value;
     }
 
+    public boolean shouldBePresentedAsAColumn() {
+        return true;
+    }
+
     public abstract String getName();
 
     public abstract Calculator[] getCalculators(Context context);
