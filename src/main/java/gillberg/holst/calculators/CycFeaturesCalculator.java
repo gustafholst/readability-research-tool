@@ -2,6 +2,7 @@ package gillberg.holst.calculators;
 
 import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.expr.BinaryExpr;
+import com.github.javaparser.ast.expr.LambdaExpr;
 import com.github.javaparser.ast.nodeTypes.NodeWithIdentifier;
 import com.github.javaparser.ast.stmt.*;
 import gillberg.holst.*;
@@ -27,7 +28,8 @@ public class CycFeaturesCalculator extends AbstractCalculator implements Calcula
         num_if_statements,
         num_loops,
         num_catch,
-        num_and_or;
+        num_and_or,
+        num_throws;
 
         public static List<String> getFeatures() {
             List<String> featureNames = new ArrayList<>();
@@ -66,16 +68,20 @@ public class CycFeaturesCalculator extends AbstractCalculator implements Calcula
 
                                 final int[] nodeCounts = new int[Feature.values().length];
 								m.walk(node -> {
-									if (node instanceof IfStmt) {
+								    if (node.getParentNode().isPresent() && node.findAncestor(LambdaExpr.class).isPresent()) {
+								        //ignore
+                                        //System.out.println("Lambda parent!:\t" + node.toString());
+                                    }
+									else if (node instanceof IfStmt) {
 										nodeCounts[Feature.num_if_statements.ordinal()]++;
 									}
-									if (node instanceof ForStmt || node instanceof WhileStmt || node instanceof ForEachStmt) {
+									else if (node instanceof ForStmt || node instanceof WhileStmt || node instanceof ForEachStmt) {
 										nodeCounts[Feature.num_loops.ordinal()]++;
 									}
-									if (node instanceof CatchClause) {
+									else if (node instanceof CatchClause) {
 										nodeCounts[Feature.num_catch.ordinal()]++;
 									}
-									if (node instanceof BinaryExpr) {
+									else if (node instanceof BinaryExpr) {
 										BinaryExpr be = (BinaryExpr)node;
 										BinaryExpr.Operator op = be.getOperator();
 										if (op == BinaryExpr.Operator.AND
@@ -85,6 +91,9 @@ public class CycFeaturesCalculator extends AbstractCalculator implements Calcula
 											nodeCounts[Feature.num_and_or.ordinal()]++;
 										}
 									}
+									else if (node instanceof ThrowStmt) {
+									    nodeCounts[Feature.num_throws.ordinal()]++;
+                                    }
 								});
 
                                 CalculatedFeatures instance = CalculatedFeatures.getInstance();
