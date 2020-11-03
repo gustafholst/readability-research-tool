@@ -15,9 +15,15 @@ public class CSVResultsWriter implements ResultsWriter{
 
     private String fileName = "";
     private String headerLine = null;
-    private List<String> rows = new ArrayList<>();
+
+    private final List<String> rows = new ArrayList<>();
+
+    private final List<String> origRows = new ArrayList<>();
+    private final List<String> refactoredRows = new ArrayList<>();
 
     private char columnSeparator = ',';
+
+    private boolean separateFiles = false;
 
     private static final String suffix = ".csv";
 
@@ -34,35 +40,15 @@ public class CSVResultsWriter implements ResultsWriter{
 
     @Override
     public void addRow(Method method) throws FeatureNotSetException {
-
-        if (headerLine == null) {
-            addColumns();
+        if (separateFiles) {
+            buildRowsForSeparateFiles(method);
         }
-
-        StringBuilder newRow = new StringBuilder();
-
-        newRow.append(method.className);
-        newRow.append(columnSeparator);
-        newRow.append(method.signature);
-        newRow.append(columnSeparator);
-
-        for (CalculatedFeature f: CalculatedFeatures.getInstance().getFeatures()) {
-            if (f.shouldBePresentedAsAColumn()) {
-                CalculatedFeature temp = method.findCalculatedFeature(f);
-
-                newRow.append(temp.getValueForOriginal());
-                newRow.append(columnSeparator);
-                newRow.append(temp.getValueForRefactored());
-                newRow.append(columnSeparator);
-            }
+        else {
+            buildRow(method);
         }
-
-        newRow.deleteCharAt(newRow.length() - 1);
-
-        rows.add(newRow.toString());
     }
 
-    private void addColumns() {
+    private void buildColumns() {
         StringBuilder header = new StringBuilder();
 
         header.append("class_name");
@@ -88,6 +74,85 @@ public class CSVResultsWriter implements ResultsWriter{
         headerLine = header.toString();
     }
 
+    private void buildColumnsForSeparateFiles() {
+        StringBuilder header = new StringBuilder();
+
+        header.append("class_name");
+        header.append(columnSeparator);
+        header.append("signature");
+        header.append(columnSeparator);
+
+        for (CalculatedFeature f: CalculatedFeatures.getInstance().getFeatures()) {
+            if (f.shouldBePresentedAsAColumn()) {
+                String featureName = f.getName();
+
+                header.append(featureName);
+                header.append(columnSeparator);
+            }
+        }
+
+        header.deleteCharAt(header.length() - 1);
+
+        headerLine = header.toString();
+    }
+
+    private void buildRow(Method method) throws FeatureNotSetException {
+        StringBuilder newRow = new StringBuilder();
+
+        newRow.append(method.className);
+        newRow.append(columnSeparator);
+        newRow.append(method.signature);
+        newRow.append(columnSeparator);
+
+        for (CalculatedFeature f: CalculatedFeatures.getInstance().getFeatures()) {
+            if (f.shouldBePresentedAsAColumn()) {
+                CalculatedFeature temp = method.findCalculatedFeature(f);
+
+                newRow.append(temp.getValueForOriginal());
+                newRow.append(columnSeparator);
+                newRow.append(temp.getValueForRefactored());
+                newRow.append(columnSeparator);
+            }
+        }
+
+        newRow.deleteCharAt(newRow.length() - 1);
+
+        rows.add(newRow.toString());
+    }
+
+    private void buildRowsForSeparateFiles(Method method) throws FeatureNotSetException {
+        StringBuilder origRow = new StringBuilder();
+        StringBuilder refactoredRow = new StringBuilder();
+
+        origRow.append(method.className);
+        origRow.append(columnSeparator);
+        origRow.append(method.signature);
+        origRow.append(columnSeparator);
+
+        refactoredRow.append(method.className);
+        refactoredRow.append(columnSeparator);
+        refactoredRow.append(method.signature);
+        refactoredRow.append(columnSeparator);
+
+        for (CalculatedFeature f: CalculatedFeatures.getInstance().getFeatures()) {
+            if (f.shouldBePresentedAsAColumn()) {
+                CalculatedFeature temp = method.findCalculatedFeature(f);
+
+                origRow.append(temp.getValueForOriginal());
+                origRow.append(columnSeparator);
+
+                refactoredRow.append(temp.getValueForRefactored());
+                refactoredRow.append(columnSeparator);
+            }
+        }
+
+        origRow.deleteCharAt(origRow.length() - 1);
+        refactoredRow.deleteCharAt(refactoredRow.length() - 1);
+
+        origRows.add(origRow.toString());
+        refactoredRows.add(refactoredRow.toString());
+    }
+
     @Override
     public void setFileName(String fileName) {
         this.fileName = fileName;
@@ -99,9 +164,20 @@ public class CSVResultsWriter implements ResultsWriter{
             throw new FilenameNotSetException();
         }
 
+        if (separateFiles) {
+            writeSeparateFiles();
+        }
+        else {
+            writeOneFile();
+        }
+    }
+
+    private void writeOneFile() {
         if (!fileName.endsWith(suffix)) {
             fileName = fileName + suffix;
         }
+
+        buildColumns();
 
         File csvFile = new File(fileName);
 
@@ -115,5 +191,40 @@ public class CSVResultsWriter implements ResultsWriter{
         } catch (IOException e) {
             System.out.println("Could not write CSV file. Reason: " + e.getMessage());
         }
+    }
+
+    private void writeSeparateFiles() {
+        if (fileName.endsWith(suffix)) {
+            fileName = fileName.substring(0, fileName.indexOf(suffix));
+        }
+
+        buildColumnsForSeparateFiles();
+
+        File csvFile_original = new File(fileName + "_ORIGINAL" + suffix);
+        File csvFile_refactored = new File(fileName + "_REACTIVE" + suffix);
+
+        try {
+            //write original file
+            FileUtils.write(csvFile_original, headerLine + System.lineSeparator(), "utf-8", false);
+
+            for (String row : origRows) {
+                FileUtils.write(csvFile_original, row + System.lineSeparator(), "utf-8", true);
+            }
+
+            //write refactored file
+            FileUtils.write(csvFile_refactored, headerLine + System.lineSeparator(), "utf-8", false);
+
+            for (String row : refactoredRows) {
+                FileUtils.write(csvFile_refactored, row + System.lineSeparator(), "utf-8", true);
+            }
+
+        } catch (IOException e) {
+            System.out.println("Could not write CSV file. Reason: " + e.getMessage());
+        }
+    }
+
+    @Override
+    public void setSeparateFiles() {
+        separateFiles = true;
     }
 }

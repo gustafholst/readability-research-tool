@@ -21,6 +21,8 @@ public class JSONResultsWriter implements ResultsWriter {
     private static final String origPrefix = "oo_";
     private static final String refactoredPrefix = "rx_";
 
+    private boolean separateFiles = false;
+
     public JSONResultsWriter() {
 
     }
@@ -100,5 +102,10 @@ public class JSONResultsWriter implements ResultsWriter {
         } catch (IOException e) {
             System.out.println("Could not write JSON. Reason: " + e.getMessage());
         }
+    }
+
+    @Override
+    public void setSeparateFiles() {
+        separateFiles = true;
     }
 }
