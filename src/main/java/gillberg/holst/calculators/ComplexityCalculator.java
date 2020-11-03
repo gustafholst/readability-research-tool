@@ -31,10 +31,14 @@ public class ComplexityCalculator extends AbstractCalculator implements Calculat
     public ComplexityCalculator(Context context, Paradigm paradigm) {
         super(context, paradigm);
 
+        Properties properties = new Properties();
+        properties.setProperty("showClassesComplexity", "true");
+        properties.setProperty("showMethodsComplexity", "true");
+
         this.configuration = new PMDConfiguration();
         this.configuration.setMinimumPriority(RulePriority.LOW);
         this.configuration.setRuleSets("D:\\OpenSourceProjects\\ReadabilityFeaturesCalculator\\src\\main\\resources\\cyc_ruleset.xml");
-
+        this.configuration.setReportProperties(properties);
         try {
             configuration.prependClasspath("/home/workspace/target/classes");
         } catch (IOException e) {

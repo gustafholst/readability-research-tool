@@ -14,6 +14,7 @@ public class BasicContext implements Context {
     private String refactoredDir;
     private RefactoredMethods refactoredMethods;
 
+
     @Override
     public void setDirectoryForOriginalCode(String dir) {
         this.origDir = dir;
@@ -55,8 +56,6 @@ public class BasicContext implements Context {
 
     @Override
     public boolean shouldCalculate(String className, String signature) throws IOException {
-
         return refactoredMethods.shouldCalculate(new Method(className, signature));
     }
-
 }
