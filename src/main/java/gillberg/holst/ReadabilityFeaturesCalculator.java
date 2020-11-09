@@ -33,18 +33,26 @@ public class ReadabilityFeaturesCalculator {
 
 		Context context = new BasicContext();
 
+		String resultsFileName = "DATASET_HOLST";
 		context.setDirectoryForOriginalCode("D:\\OpenSourceProjects\\ReadabilityFeaturesCalculator\\src\\main\\data\\source_code_orig");
 		context.setDirectoryForRefactoredCode("D:\\OpenSourceProjects\\ReadabilityFeaturesCalculator\\src\\main\\data\\source_code_rx");
-
 		String methodsPath = "D:\\OpenSourceProjects\\ReadabilityFeaturesCalculator\\src\\main\\data\\refactored_methods.txt";
+
+//		String resultsFileName = "EXAMPLES_RESULT";
+//		context.setDirectoryForOriginalCode("D:\\OpenSourceProjects\\Reactive refactor excerpts\\src\\main\\java\\imperative");
+//		context.setDirectoryForRefactoredCode("D:\\OpenSourceProjects\\Reactive refactor excerpts\\src\\main\\java\\reactive");
+//		String methodsPath = "D:\\OpenSourceProjects\\ReadabilityFeaturesCalculator\\src\\main\\data\\example_methods.txt";
+
 		RefactoredMethods refactoredMethods = new RefactoredMethods(methodsPath);
 		context.setRefactoredMethods(refactoredMethods);
 
+		CalculatedFeatures.getInstance().addFeature(new LinesOfCode());
 		CalculatedFeatures.getInstance().addFeature(new BuseReadability());
 		CalculatedFeatures.getInstance().addFeature(new ScalabrinoReadability());
 		CalculatedFeatures.getInstance().addFeature(new CyclomaticComplexity());
-		CalculatedFeatures.getInstance().addFeature(new ScalabrinoFeatures());
+		//CalculatedFeatures.getInstance().addFeature(new ScalabrinoFeatures());
 		CalculatedFeatures.getInstance().addFeature(new CyclomaticComplexityFeatures());
+
 
 		List<Calculator> calculators = new ArrayList<>();
 
@@ -68,7 +76,7 @@ public class ReadabilityFeaturesCalculator {
 		ResultsWriter writer = new CSVResultsWriter(';');
 		writer.setSeparateFiles();
 
-		writer.setFileName("DATASET_HOLST");
+		writer.setFileName(resultsFileName);
 		for (Method m : context.getMethods()) {
 			try {
 				writer.addRow(m);
