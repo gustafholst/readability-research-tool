@@ -44,7 +44,7 @@ public class ScalabrinoCalculator extends AbstractCalculator implements Calculat
                     Double value = readabilityMap.get(method);
                     m.addCalculatedFeature(new ScalabrinoReadability(), value, getParadigm());
                 } catch (MethodNotRefactoredException | UnknownParadigmException | FeatureAlreadySetException e) {
-                    System.out.println(e.getMessage());
+                    //ignore methods not specified in the refactored methods file
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
@@ -69,11 +69,7 @@ public class ScalabrinoCalculator extends AbstractCalculator implements Calculat
                         }
                 ).findFirst();
 
-        if (foundMethod.isPresent()) {
-            return foundMethod.get();
-        }
-
-        throw new MethodNotRefactoredException("No method [" + className + " " + signature + "] in memory");
+        return foundMethod.orElseThrow(() -> new MethodNotRefactoredException("No method [" + className + " " + signature + "] in memory"));
     }
 
     @Override

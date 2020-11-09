@@ -101,7 +101,6 @@ public class CycFeaturesCalculator extends AbstractCalculator implements Calcula
                                 //add every feature to CalculatedFeatures singleton
                                 for (Feature feature : Feature.values()) {
                                     CalculatedFeature newFeature = new DynamicFeature(feature.toString());
-                                    //features.add(newFeature);
 
                                     Integer value = nodeCounts[feature.ordinal()];
                                     try {

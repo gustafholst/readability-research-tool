@@ -14,7 +14,7 @@ import java.io.IOException;
 
 import static org.junit.Assert.assertEquals;
 
-public class BuseCalculatorTest extends BaseTest{
+public class BuseCalculatorTest extends BaseTest {
 
     @Test()
     public void CalculatingComplexityOfClassWithOneOriginalMethod() throws IOException, FeatureNotSetException, FeatureAlreadySetException, MethodNotRefactoredException, UnknownParadigmException {
@@ -42,8 +42,8 @@ public class BuseCalculatorTest extends BaseTest{
 
         calculator.calculate();
 
-        CalculatedFeature cycFeature = sendToTcpMethod.findCalculatedFeature(new BuseReadability());
-        Number actual = cycFeature.getValueForRefactored();
+        CalculatedFeature buseFeature = sendToTcpMethod.findCalculatedFeature(new BuseReadability());
+        Number actual = buseFeature.getValueForRefactored();
 
         Double expectedReadability = 5.414261249825358E-4;
 

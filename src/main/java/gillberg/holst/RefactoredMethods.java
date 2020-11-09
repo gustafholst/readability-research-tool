@@ -36,6 +36,9 @@ public class RefactoredMethods {
         refactoredMethods = new ArrayList<>();
 
         for (String l : lines) {
+            if (l.startsWith("%"))  // ignored commented out lines
+                continue;
+
             int firstSpace = l.indexOf(" ");
             String className = l.substring(0, firstSpace);
             String signature = l.substring(firstSpace);
